@@ -416,6 +416,12 @@ header{
     margin: 0 10px;
 }
 
+.stone-img{
+    position: absolute;
+    margin-top: 22%;
+    width: 500px;
+}
+
 /*Blur Effect Animation*/
 
 .autoBlur{
@@ -471,7 +477,7 @@ header{
     }
 }
 
-@media screen and (max-width: 650px){
+/*@media screen and (max-width: 650px){
     header{
         padding:0 10px;
     }
@@ -533,5 +539,9 @@ header{
     }
     .footer ul{
         margin-left: 70px;
+    }
+    .stone-img{
+        margin-top: 80%;
+        width: 400px;
     }
 }
