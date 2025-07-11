@@ -24,8 +24,7 @@ header{
     justify-content: space-between;
     padding: 10px 40px;
     z-index: 999;
-    background-color: #4b4b4b5b;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(0px);
 }   
 
 .head-left{
@@ -34,8 +33,8 @@ header{
 }
 
 .head-left img{
-    width: 40px;
-    height: 40px;
+    width: 80px;
+    height: 80px;
     margin-right: 20px;
 }
 
@@ -100,19 +99,9 @@ header{
     margin-bottom: 20px;
 }
 
-.hero-info p{
-    color: white;
-    max-width: 210px;
-}
-
-.hero-info button{
-    background-color: #edff66;
-    border: 2px solid #edff66;
-    padding: 10px 40px;
-    border-radius: 20px;
-    cursor: pointer;
-    color: black;
-    transition: 0.3s;
+.hero-info h3{
+    color: rgb(101, 187, 236);
+    max-width: 500px;
 }
 
 .hero-info button:hover{
@@ -346,7 +335,7 @@ header{
 
 .contact-section .img3{
     position: absolute;
-    left: 3%;
+    left: 3.5%;
     bottom: -5%;
     height: 250px;
     width: 250px;
