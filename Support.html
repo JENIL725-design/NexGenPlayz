@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - NexGenPlayz</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            scroll-behavior: smooth;
+            overflow-x: hidden; /* Prevent horizontal scroll from background effects */
+            position: relative; /* For pseudo-elements */
+        }
+
+        /* Background glowing particles/aura effect */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(100px);
+            z-index: -2;
+            animation: backgroundGlow 15s infinite alternate;
+        }
+
+        body::before {
+            background-color: #4acfee; /* Blue glow */
+            top: -50px;
+            left: -50px;
+        }
+
+        body::after {
+            background-color: #53f8c9; /* Green glow */
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 7.5s; /* Stagger animation */
+        }
+
+        @keyframes backgroundGlow {
+            0% { transform: translate(0, 0); opacity: 0.1; }
+            25% { transform: translate(50px, 50px); opacity: 0.15; }
+            50% { transform: translate(0, 100px); opacity: 0.1; }
+            75% { transform: translate(-50px, 50px); opacity: 0.15; }
+            100% { transform: translate(0, 0); opacity: 0.1; }
+        }
+
+
+        .container{
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1; /* Ensure content is above background effects */
+        }
+
+        header{
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 40px;
+            z-index: 999;
+            backdrop-filter: blur(0px);
+            opacity: 0; /* Start hidden for animation */
+            animation: headerSlideIn 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes headerSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .head-left{
+            display: flex;
+            align-items: center;
+        }
+
+        .head-left img{
+            width: 80px;
+            height: 80px;
+            margin-right: 20px;
+        }
+
+        .head-left button{
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .head-left button:hover{
+            opacity: 0.5;
+        }
+
+        .head-right{
+            display: flex;
+        }
+
+        .head-right a{
+            text-decoration: none;
+            padding-left: 25px;
+            color: white;
+            font-size: 15px;
+            position: relative; /* For hover effect */
+            transition: color 0.3s ease;
+        }
+
+        .head-right a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            transition: width 0.3s ease;
+        }
+
+        .head-right a:hover::after {
+            width: 100%;
+        }
+        .head-right a:hover {
+            color: #4acfee; /* Highlight color on hover */
+        }
+
+
+        @keyframes animate-gradient{
+            to{
+                background-position: 200%;
+            }
+        }
+
+        .support-section{
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 80%;
+            margin-top: 150px; /* Adjusted margin for header */
+            margin-bottom: 100px;
+            align-items: center;
+            text-align: center;
+            /* Added gaming vibes background */
+            background: radial-gradient(circle at top left, rgba(74, 207, 238, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(83, 248, 201, 0.1) 0%, transparent 30%);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            border-radius: 25px; /* Slightly rounded section */
+            padding: 50px 0; /* Add some padding for the background effect */
+        }
+
+        .support-section h1{
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-weight: 900;
+            font-size: 100px;
+            margin: 25px 0;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        .support-section h3{
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 50px;
+            color: gray;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+            margin-bottom: 50px;
+        }
+
+        /* Form Styling */
+        .contact-form-container{
+            background-color: #1a1a1a;
+            border: 1px solid gray;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
+            text-align: left;
+            animation: fadeInScale 0.8s ease-out forwards; /* Form entrance animation */
+            position: relative; /* For pseudo-elements */
+            overflow: hidden; /* Hide overflow from pseudo-elements */
+        }
+
+        /* Subtle glowing border effect for the form container */
+        .contact-form-container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #4acfee, #53f8c9, #02d79a, #6070fb, #2a46ff, #0099ff, #4acfee);
+            background-size: 400% 400%;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+            border-radius: 25px;
+            animation: glowingBorder 5s linear infinite alternate;
+        }
+
+        @keyframes glowingBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .form-group{
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .form-group label{
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            color: gray;
+            font-size: 16px;
+            pointer-events: none;
+            transition: 0.3s ease all;
+        }
+
+        .form-group input,
+        .form-group textarea{
+            width: calc(100% - 40px); /* Account for padding */
+            padding: 15px 20px;
+            background-color: #0f1217;
+            border: 1px solid #4acfee; /* Light blue border */
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; /* Added transform for pop */
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus{
+            border-color: #53f8c9; /* Greenish border on focus */
+            box-shadow: 0 0 20px rgba(83, 248, 201, 0.7); /* Stronger glowing effect on focus */
+            transform: scale(1.01); /* Subtle pop effect on focus */
+        }
+
+        /* Floating label effect */
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group textarea:focus + label,
+        .form-group textarea:not(:placeholder-shown) + label{
+            top: -10px;
+            left: 15px;
+            font-size: 12px;
+            color: #4acfee; /* Label color changes on focus/fill */
+            background-color: #1a1a1a; /* Match form container background */
+            padding: 0 5px;
+            border-radius: 5px;
+        }
+
+        .form-group textarea{
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 120px;
+        }
+
+        .submit-button{
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(to right, #4acfee, #0099ff); /* Gradient background */
+            color: black; /* Text color for contrast */
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); /* Initial shadow */
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            /* Add a subtle pulse animation */
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0, 153, 255, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); }
+        }
+
+        .submit-button:hover{
+            background: linear-gradient(to right, #53f8c9, #02d79a); /* Change gradient on hover */
+            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6); /* Larger shadow on hover */
+            transform: translateY(-3px) scale(1.02); /* Slight lift and scale effect */
+            animation: none; /* Stop pulse on hover */
+        }
+
+        .submit-button:active{
+            transform: translateY(0) scale(0.98); /* Press down effect */
+            box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
+        }
+
+        .footer{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            height: 100px;
+            opacity: 0; /* Start hidden for animation */
+            animation: footerSlideIn 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+        }
+
+        @keyframes footerSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .contact-section h1{
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 70px;
+            max-width: 550px;
+            text-align: center;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        .footer p{
+            margin: 0 20px;
+        }
+
+        .footer ul{
+            display: flex;
+            list-style: none;
+            margin-right: 140px;
+        }
+
+        .footer a{
+            text-decoration: none;
+            color: white;
+            padding: 7px 7px;
+            border-radius: 50px;
+            border: 1px solid rgb(0, 130, 211);
+            transition: 0.3s;
+            margin: 0 10px;
+        }
+
+        .autoDisplay{
+            animation: autoDisplayAnimation both;
+            animation-timeline: view(70% 5%);
+        }
+        @keyframes autoDisplayAnimation{
+            from{
+                opacity: 0;
+                transform: translateY(200px) scale(0.3);
+            }
+            to{
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .support-section h1 {
+                font-size: 60px;
+            }
+            .support-section h3 {
+                font-size: 30px;
+            }
+            header {
+                padding: 10px 20px;
+            }
+            .head-left img {
+                width: 60px;
+                height: 60px;
+            }
+            .head-right a {
+                padding-left: 15px;
+                font-size: 13px;
+            }
+            .contact-form-container {
+                padding: 25px;
+                width: 90%;
+            }
+            .form-group input,
+            .form-group textarea {
+                width: calc(100% - 30px);
+                padding: 12px 15px;
+            }
+            .submit-button {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+            .footer {
+                flex-direction: column;
+                height: auto;
+                padding: 20px 0;
+            }
+            .footer ul {
+                margin: 10px 0 0 0;
+                padding: 0;
+                justify-content: center;
+            }
+            .footer p {
+                margin: 10px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .support-section h1 {
+                font-size: 45px;
+            }
+            .support-section h3 {
+                font-size: 25px;
+            }
+            .head-right {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            .head-right p {
+                margin: 5px 0;
+            }
+            .head-right a {
+                padding-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="head-left">
+                <img src="img/2.png" alt="NexGenPlayz Logo">
+            </div>
+
+            <div class="head-right">
+                <p><a href="Home.html">HOME</a></p>
+                <p><a href="About.html">ABOUT</a></p>
+                <p><a href="Support.html">SUPPORT</a></p>
+                <p><a href="#">PROFILE</a></p>
+            </div>
+        </header>
+
+        <section class="support-section">
+            <h1 class="autoDisplay">Need Help? We've Got You!</h1>
+            <h3 class="autoDisplay">Our Team is Ready to Assist You, 24/7.</h3>
+
+            <div class="contact-form-container autoDisplay">
+                <p style="color: lightgray; margin-bottom: 30px; text-align: center;">Fill out the form below and we'll get back to you as soon as possible. Your ultimate gaming experience is our priority!</p>
+                <form action="#" method="POST">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" placeholder=" " required>
+                        <label for="name">Your Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder=" " required>
+                        <label for="email">Your Email</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="subject" name="subject" placeholder=" " required>
+                        <label for="subject">Subject</label>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" name="message" placeholder=" " required></textarea>
+                        <label for="message">Your Message</label>
+                    </div>
+                    <button type="submit" class="submit-button">Send Message</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <h1>Join Us </h1>
+            <h1>Let's Build New Era Of Gaming</h1>
+            </div>
+        </section>
+
+        <section class="footer">
+            <p>@NexGenPlayz 2025. All Rights Reserved</p>
+            <ul>
+            <li><a href="#"><i class='bx bxl-youtube'></i></a></li>
+            <li><a href="#"><i class='bx bxl-twitch'></i></a></li>
+            <li><a href="#"><i class='bx bxl-github'></i></a></li>
+            <li><a href="#"><i class='bx bxl-linkedin'></i></a></li>
+            </ul>
+            <p>Privacy Policy</p>
+        </section>
+    </div>
+</body>
+</html>
