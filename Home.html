@@ -33,7 +33,21 @@ header{
     padding: 10px 40px;
     z-index: 999;
     backdrop-filter: blur(0px);
-}   
+    opacity: 0;
+    animation: headerSlideIn 0.8s ease-out forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes headerSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+        }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        }
+}
 
 .head-left{
     display: flex;
@@ -257,7 +271,7 @@ header{
 .contact-section .img3{
     position: absolute;
     left: 3.5%;
-    bottom: -6%;
+    bottom: -20%;
     height: 250px;
     width: 250px;
     clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
@@ -324,6 +338,11 @@ header{
     border: 1px solid rgb(0, 130, 211);
     transition: 0.3s;
     margin: 0 10px;
+}
+
+.footer a:hover {
+    background-color: rgba(0, 130, 211, 0.3);
+    box-shadow: 0 0 10px rgba(0, 130, 211, 0.7);
 }
 
 .stone-img{
@@ -397,6 +416,7 @@ header{
 
             <div class="head-right">
                 <p><a href="Login.html">LOGIN</a></p>
+                <p><a href="Home.html">HOME</a></p>
                 <p><a href="Games.html">GAMES</a></p>
                 <p><a href="About.html">ABOUT</a></p>
                 <p><a href="Support.html">SUPPORT</a></p>
@@ -443,7 +463,6 @@ header{
                 <h1>Let's Build New Era Of Gaming</h1>
             </div>
          
-            <button>Contact Us</button>
             <img class="img1" src="img/swordman.webp" alt="contact-img">
             <img class="img2" src="img/contact-1.webp" alt="contact-img">
             <img class="img3" src="img/contact-2.webp" alt="contact-img">

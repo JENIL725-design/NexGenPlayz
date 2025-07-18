@@ -3,224 +3,598 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaming Portal</title>
-  <style>
-    /* Basic Reset & Body Styling */
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Arial', sans-serif;
-        background: linear-gradient(to right, #1a1a2e, #16213e, #0f3460);
-        color: #e0e0e0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        overflow: hidden;
-        background-size: 200% 200%;
-        animation: backgroundShift 15s ease infinite;
-    }
+    <title>Login & Register</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* General body styles from Support.html */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            position: relative;
+            font-family: Arial, Helvetica, sans-serif; /* Added font-family for consistency */
+            color: white; /* Added text color for consistency */
+        }
 
-    @keyframes backgroundShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
+        /* Background glow effects from Support.html */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(100px);
+            z-index: -2;
+            animation: backgroundGlow 15s infinite alternate;
+        }
 
-    /* Container for the form box */
-    .container {
-        width: 90%;
-        max-width: 400px;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 40px 30px;
-        border-radius: 15px;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-        position: relative;
-        min-height: 450px;
-        overflow: hidden;
-    }
+        body::before {
+            background-color: #4acfee;
+            top: -50px;
+            left: -50px;
+        }
 
-    /* Form Box to hold toggle buttons and forms */
-    .form-box {
-        width: 100%;
-        position: absolute;
-        top: 100px;
-        left: 0;
-    }
+        body::after {
+            background-color: #53f8c9;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 7.5s;
+        }
 
-    /* Toggle Buttons Container */
-    .button-box {
-        width: 220px;
-        margin: 0 auto 30px;
-        position: absolute;
-        top: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        border-radius: 30px;
-        background: #2c3e50;
-        z-index: 10;
-    }
+        @keyframes backgroundGlow {
+            0% { transform: translate(0, 0); opacity: 0.1; }
+            25% { transform: translate(50px, 50px); opacity: 0.15; }
+            50% { transform: translate(0, 100px); opacity: 0.1; }
+            75% { transform: translate(-50px, 50px); opacity: 0.15; }
+            100% { transform: translate(0, 0); opacity: 0.1; }
+        }
 
-    /* Individual Toggle Buttons (Log In, Register) */
-    .toggle-btn {
-        padding: 10px 20px;
-        cursor: pointer;
-        background: transparent;
-        border: 0;
-        outline: none;
-        position: relative;
-        color: #e0e0e0;
-        font-size: 16px;
-        transition: color 0.3s ease;
-    }
+        /* Container styles from Support.html */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh; /* Ensure container takes full viewport height */
+            justify-content: center; /* Center content vertically */
+            padding-top: 100px; /* Adjust for fixed header */
+            padding-bottom: 50px; /* Adjust for fixed footer */
+        }
 
-    .toggle-btn:hover {
-        color: #00bcd4;
-    }
+        /* Header styles from Support.html */
+        header {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 40px;
+            z-index: 999;
+            backdrop-filter: blur(0px);
+            opacity: 0;
+            animation: headerSlideIn 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+        }
 
-    /* Slider for active toggle button */
-    #btn {
-        top: 0;
-        left: 0;
-        position: absolute;
-        width: 110px;
-        height: 100%;
-        background: linear-gradient(to right, #00bcd4, #007bff);
-        border-radius: 30px;
-        transition: 0.5s;
-    }
+        @keyframes headerSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    /* Input Group (for both login and register forms) */
-    .input-group {
-        position: absolute;
-        width: 100%;
-        top: 0;
-        transition: 0.5s;
-    }
+        .head-left {
+            display: flex;
+            align-items: center;
+        }
 
-    /* Initial positions for forms */
-    #login {
-        left: 0;
-    }
+        .head-left img {
+            width: 80px;
+            height: 80px;
+            margin-right: 20px;
+        }
 
-    #register {
-        left: 100%;
-        display: flex; /* Enable flexbox for the register form */
-        flex-direction: column; /* Stack items vertically */
-        justify-content: space-between; /* Distribute space between elements, pushing the last to the bottom */
-        min-height: calc(100% - 50px); /* Adjust height to accommodate button at the bottom */
-    }
+        .head-left button {
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-    /* Form Heading (Login, Register titles) */
-    .input-group h1 {
-        text-align: center;
-        margin-bottom: 25px;
-        color: #00e1ff;
-        font-size: 28px;
-        text-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
-    }
+        .head-left button:hover {
+            opacity: 0.5;
+        }
 
-    /* Input Fields */
-    .input-field {
-        width: calc(100% - 20px);
-        padding: 15px 10px;
-        margin: 10px 0;
-        border: 0;
-        border-bottom: 2px solid #00e1ff;
-        background: transparent;
-        outline: none;
-        color: #e0e0e0;
-        font-size: 16px;
-        transition: border-bottom 0.3s ease, box-shadow 0.3s ease;
-    }
+        .head-right {
+            display: flex;
+        }
 
-    .input-field::placeholder {
-        color: #a0a0a0;
-    }
+        .head-right a {
+            text-decoration: none;
+            padding-left: 25px;
+            color: white;
+            font-size: 15px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
 
-    .input-field:focus {
-        border-bottom: 2px solid #00e1ff;
-        box-shadow: 0 5px 10px rgba(0, 225, 255, 0.2);
-    }
+        .head-right a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            transition: width 0.3s ease;
+        }
 
-    /* Submit Button */
-    .submit-btn {
-        width: 100%;
-        padding: 15px 30px;
-        cursor: pointer;
-        display: block;
-        margin: 30px auto 0; /* Adjust top margin */
-        background: linear-gradient(to right, #00bcd4, #007bff);
-        border: 0;
-        outline: none;
-        border-radius: 30px;
-        color: #fff;
-        font-size: 18px;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    }
+        /* Section for forms, adapted from support-section */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 80%;
+            margin-top: 50px; /* Adjusted margin-top */
+            margin-bottom: 50px; /* Adjusted margin-bottom */
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at top left, rgba(74, 207, 238, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(83, 248, 201, 0.1) 0%, transparent 30%);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            border-radius: 25px;
+            padding: 50px 0;
+        }
 
-    /* Specific styling for the register submit button to center it */
-    #register .submit-btn {
-        align-self: center; /* Center the register button horizontally */
-        margin-top: auto; /* Push it to the bottom */
-        margin-bottom: 0; /* Remove default bottom margin */
-    }
+        .form-section h1 {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-weight: 900;
+            font-size: 80px; /* Adjusted font size */
+            margin: 25px 0;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+        }
 
-    .submit-btn:hover {
-        background: linear-gradient(to right, #007bff, #00bcd4);
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0, 123, 255, 0.4);
-    }
+        .form-section h3 {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 40px; /* Adjusted font size */
+            color: gray;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+            margin-bottom: 50px;
+        }
 
-</style>
+        @keyframes animate-gradient{
+        to{
+        background-position: 200%;
+          }
+}
+
+        /* Form container styles from Support.html */
+        .auth-form-container {
+            background-color: #1a1a1a;
+            border: 1px solid gray;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px; /* Slightly smaller max-width for auth forms */
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
+            text-align: left;
+            animation: fadeInScale 0.8s ease-out forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-form-container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #4acfee, #53f8c9, #02d79a, #6070fb, #2a46ff, #0099ff, #4acfee);
+            background-size: 400% 400%;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+            border-radius: 25px;
+            animation: glowingBorder 5s linear infinite alternate;
+        }
+
+        @keyframes glowingBorder {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Form group styles - adjusted for consistency with Support.html */
+        .form-group{
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .form-group label{
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            color: gray;
+            font-size: 16px;
+            pointer-events: none;
+            transition: 0.3s ease all;
+        }
+
+        .form-group input,
+        .form-group textarea{
+            width: calc(100% - 40px);
+            padding: 15px 20px;
+            background-color: #0f1217;
+            border: 1px solid #4acfee;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus{
+            border-color: #53f8c9;
+            box-shadow: 0 0 20px rgba(83, 248, 201, 0.7);
+            transform: scale(1.01);
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group textarea:focus + label,
+        .form-group textarea:not(:placeholder-shown) + label{
+            top: -10px;
+            left: 15px;
+            font-size: 12px;
+            color: #4acfee;
+            background-color: #1a1a1a;
+            padding: 0 5px;
+            border-radius: 5px;
+        }
+
+        .form-group textarea{
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Submit button styles from Support.html */
+        .submit-button {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            color: black;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            animation: pulse 2s infinite ease-in-out;
+            width: 100%; /* Make button full width */
+            margin-top: 20px; /* Add some margin */
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0, 153, 255, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); }
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(to right, #53f8c9, #02d79a);
+            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6);
+            transform: translateY(-3px) scale(1.02);
+            animation: none;
+        }
+
+        .submit-button:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
+        }
+
+        /* Links within the form */
+        .form-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .form-links a {
+            color: #4acfee;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .form-links a:hover {
+            color: #53f8c9;
+            text-decoration: underline;
+        }
+
+        /* Footer styles from Support.html */
+        .footer {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            height: 100px;
+            opacity: 0;
+            animation: footerSlideIn 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+            position: absolute; /* Fixed position for footer */
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        @keyframes footerSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .footer p {
+            color: white;
+            margin: 0 20px;
+        }
+
+        .footer ul {
+            display: flex;
+            list-style: none;
+            margin-right: 140px;
+            padding: 0; /* Added padding: 0 */
+        }
+
+        .footer a {
+            text-decoration: none;
+            color: white;
+            padding: 7px 7px;
+            border-radius: 50px;
+            border: 1px solid rgb(0, 130, 211);
+            transition: 0.3s;
+            margin: 0 10px;
+        }
+
+        .footer a:hover {
+            background-color: rgba(0, 130, 211, 0.3);
+            box-shadow: 0 0 10px rgba(0, 130, 211, 0.7);
+        }
+
+        /* Pure CSS Toggle Logic using :target */
+        /* Hide both forms by default */
+        #login, #register {
+            display: none;
+        }
+
+        /* Show login form by default (when no hash is present, or #login is targeted) */
+        body:not(:target) #login, /* If no element in the body is targeted by a hash, show #login */
+        #login:target { /* If #login itself is targeted */
+            display: block;
+        }
+
+        /* Show register form when #register is targeted */
+        #register:target {
+            display: block;
+        }
+
+        /* When #login is targeted, ensure #register is hidden */
+        /* This works because #register is before #login in the HTML */
+        #login:target ~ #register {
+            display: none;
+        }
+
+        /* When #register is targeted, ensure #login is hidden */
+        /* This works because #login is after #register in the HTML */
+        #register:target ~ #login {
+            display: none;
+        }
+
+        /* Animation for form content when switching */
+        .form-content {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive adjustments from Support.html */
+        @media (max-width: 768px) {
+            .form-section h1 {
+                font-size: 60px;
+            }
+            .form-section h3 {
+                font-size: 30px;
+            }
+            header {
+                padding: 10px 20px;
+            }
+            .head-left img {
+                width: 60px;
+                height: 60px;
+            }
+            .head-right a {
+                padding-left: 15px;
+                font-size: 13px;
+            }
+            .auth-form-container {
+                padding: 25px;
+                width: 90%;
+            }
+            .form-group input {
+                width: calc(100% - 30px);
+                padding: 12px 15px;
+            }
+            .submit-button {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+            .footer {
+                flex-direction: column;
+                height: auto;
+                padding: 20px 0;
+            }
+            .footer ul {
+                margin: 10px 0 0 0;
+                padding: 0;
+                justify-content: center;
+            }
+            .footer p {
+                margin: 10px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-section h1 {
+                font-size: 45px;
+            }
+            .form-section h3 {
+                font-size: 25px;
+            }
+            .head-right {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            .head-right p {
+                margin: 5px 0;
+            }
+            .head-right a {
+                padding-left: 0;
+            }
+            .footer ul {
+                margin-right: 0; /* Remove right margin for smaller screens */
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="button-box">
-            <div id="btn"></div>
-            <button type="button" class="toggle-btn" onclick="login()">&nbsp&nbsp Log In</button>
-            <button type="button" class="toggle-btn" onclick="register()">&nbsp&nbsp     Register</button>
-        </div>
+        <header>
+            <div class="head-left">
+                <img src="img/2.png" alt="Logo">
+            </div>
 
-        <div class="form-box">
-            <form id="login" class="input-group">
-                <h1>Login</h1>
-                <input type="text" name="log-Username" class="input-field" placeholder="Username" required>
-                <input type="password" name="log-Password" class="input-field" placeholder="Password" required>
-                <button type="submit" name="log-btn" class="submit-btn">Log In</button>
-            </form>
+            <div class="head-right">
+                <p><a href="Login.html">LOGIN</a></p>
+                <p><a href="Home.html">HOME</a></p>
+                <p><a href="Games.html">GAMES</a></p>
+                <p><a href="About.html">ABOUT</a></p>
+                <p><a href="Support.html">SUPPORT</a></p>
+                <p><a href="#">PROFILE</a></p>
+            </div>
+        </header>
 
-            <form id="register" class="input-group">
-                <h1>Register</h1>
-                <input type="text" name="reg-Username" class="input-field" placeholder="Username" required>
-                <input type="email" name="reg-Email" class="input-field" placeholder="Email" required>
-                <input type="password" name="reg-Password" class="input-field" placeholder="Password" required>
-                <input type="password" name="reg-ConfirmPassword" class="input-field" placeholder="Confirm Password" required>
-                <button type="submit" name="reg-btn" class="submit-btn">Register</button>
-            </form>
-        </div>
+        <section class="form-section">
+            <h1>Welcome Back !</h1>
+            <h3>Login or Register to continue.</h3>
+            <p style="color: lightgray; margin-bottom: 30px; text-align: center;">Switch between login and registration below.</p>
+
+            <div class="auth-form-container">
+                <form id="register" class="form-content" action="#" method="POST">
+                    <div class="form-group">
+                        <input type="text" id="registerName" name="registerName" placeholder=" " required>
+                        <label for="registerName">Your Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="registerEmail" name="registerEmail" placeholder=" " required>
+                        <label for="registerEmail">Email Address</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerPassword" name="registerPassword" placeholder=" " required>
+                        <label for="registerPassword">Password</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " required>
+                        <label for="confirmPassword">Confirm Password</label>
+                    </div>
+                    <button type="submit" class="submit-button">Register</button>
+                    <div class="form-links">
+                        <a href="#login">Already have an account? Login</a>
+                    </div>
+                </form>
+
+                <form id="login" class="form-content" action="#" method="POST">
+                    <div class="form-group">
+                        <input type="email" id="loginEmail" name="loginEmail" placeholder=" " required>
+                        <label for="loginEmail">Email Address</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" name="loginPassword" placeholder=" " required>
+                        <label for="loginPassword">Password</label>
+                    </div>
+                    <button type="submit" class="submit-button">Login</button>
+                    <div class="form-links">
+                        <a href="#">Forgot Password?</a>
+                        <a href="#register">Don't have an account? Register</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="footer">
+            <p>@NexGenPlayz 2025. All Rights Reserved</p>
+            <ul>
+                <li><a href="#"><i class='bx bxl-youtube'></i></a></li>
+                <li><a href="#"><i class='bx bxl-twitch'></i></a></li>
+                <li><a href="#"><i class='bx bxl-github'></i></a></li>
+                <li><a href="#"><i class='bx bxl-linkedin'></i></a></li>
+            </ul>
+            <p>Privacy Policy</p>
+        </section>
     </div>
-
-    <script>
-        var x = document.getElementById("login");
-        var y = document.getElementById("register");
-        var z = document.getElementById("btn");
-
-        function register() {
-            x.style.left = "-100%"; // Slide login form completely to the left
-            y.style.left = "0%";    // Bring register form to the center
-            z.style.left = "110px";  // Move slider under 'Register' button
-        }
-
-        function login() {
-            x.style.left = "0%";    // Bring login form to the center
-            y.style.left = "100%";  // Slide register form completely to the right
-            z.style.left = "0px";    // Move slider under 'Log In' button
-        }
-    </script>
 </body>
 </html>

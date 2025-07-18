@@ -33,6 +33,20 @@ header{
     padding: 10px 40px;
     z-index: 999;
     backdrop-filter: blur(0px);
+    opacity: 0;
+    animation: headerSlideIn 0.8s ease-out forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes headerSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+        }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        }
 }
 
 .head-left{
@@ -306,6 +320,10 @@ header{
     width: 500px;
 }
 
+.footer a:hover {
+    background-color: rgba(0, 130, 211, 0.3);
+    box-shadow: 0 0 10px rgba(0, 130, 211, 0.7);
+}
 
 /*Card Animations*/
 
@@ -333,7 +351,9 @@ header{
             </div>
 
             <div class="head-right">
+                <p><a href="Login.html">LOGIN</a></p>
                 <p><a href="Home.html">HOME</a></p>
+                <p><a href="Games.html">GAMES</a></p>
                 <p><a href="About.html">ABOUT</a></p>
                 <p><a href="Support.html">SUPPORT</a></p>
                 <p><a href="#">PROFILE</a></p>
@@ -410,6 +430,12 @@ header{
                     <video src="video/Sekiro 480.mp4" autoplay loop muted plays-inline></video>
                     <button>Coming Soon</button>
                 </div>
+                
+                <div class="card autoDisplay">
+                    <h1>Battlefiled 2042</h1>
+                    <video src="video/Battlefiled 2042.mp4" autoplay loop muted plays-inline></video>
+                    <button>Coming Soon</button>
+                </div>
 
                 <div class="card">
                     <h1>Many More Coming Soon !</h1>
@@ -424,8 +450,7 @@ header{
             <div class="autoBlur">
                 <h1>Let's Build New Era Of Gaming</h1>
             </div>
-         
-            <button>Contact Us</button>
+
             <img class="img1" src="img/swordman.webp" alt="contact-img">
             <img class="img2" src="img/contact-1.webp" alt="contact-img">
             <img class="img3" src="img/contact-2.webp" alt="contact-img">

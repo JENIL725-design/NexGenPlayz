@@ -11,11 +11,11 @@
             padding: 0;
             background-color: black;
             scroll-behavior: smooth;
-            overflow-x: hidden; /* Prevent horizontal scroll from background effects */
-            position: relative; /* For pseudo-elements */
+            overflow-x: hidden; 
+            position: relative; 
         }
 
-        /* Background glowing particles/aura effect */
+
         body::before, body::after {
             content: '';
             position: fixed;
@@ -29,16 +29,16 @@
         }
 
         body::before {
-            background-color: #4acfee; /* Blue glow */
+            background-color: #4acfee;
             top: -50px;
             left: -50px;
         }
 
         body::after {
-            background-color: #53f8c9; /* Green glow */
+            background-color: #53f8c9;
             bottom: -50px;
             right: -50px;
-            animation-delay: 7.5s; /* Stagger animation */
+            animation-delay: 7.5s;
         }
 
         @keyframes backgroundGlow {
@@ -57,7 +57,7 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            z-index: 1; /* Ensure content is above background effects */
+            z-index: 1;
         }
 
         header{
@@ -71,7 +71,7 @@
             padding: 10px 40px;
             z-index: 999;
             backdrop-filter: blur(0px);
-            opacity: 0; /* Start hidden for animation */
+            opacity: 0;
             animation: headerSlideIn 0.8s ease-out forwards;
             animation-delay: 0.2s;
         }
@@ -120,12 +120,11 @@
             padding-left: 25px;
             color: white;
             font-size: 15px;
-            position: relative; /* For hover effect */
+            position: relative;
             transition: color 0.3s ease;
         }
 
         .head-right a::after {
-            content: '';
             position: absolute;
             width: 0;
             height: 2px;
@@ -135,14 +134,6 @@
             background: linear-gradient(to right, #4acfee, #0099ff);
             transition: width 0.3s ease;
         }
-
-        .head-right a:hover::after {
-            width: 100%;
-        }
-        .head-right a:hover {
-            color: #4acfee; /* Highlight color on hover */
-        }
-
 
         @keyframes animate-gradient{
             to{
@@ -155,17 +146,16 @@
             flex-direction: column;
             position: relative;
             width: 80%;
-            margin-top: 150px; /* Adjusted margin for header */
+            margin-top: 150px;
             margin-bottom: 100px;
             align-items: center;
             text-align: center;
-            /* Added gaming vibes background */
             background: radial-gradient(circle at top left, rgba(74, 207, 238, 0.1) 0%, transparent 30%),
                         radial-gradient(circle at bottom right, rgba(83, 248, 201, 0.1) 0%, transparent 30%);
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            border-radius: 25px; /* Slightly rounded section */
-            padding: 50px 0; /* Add some padding for the background effect */
+            border-radius: 25px;
+            padding: 50px 0;
         }
 
         .support-section h1{
@@ -195,7 +185,6 @@
             margin-bottom: 50px;
         }
 
-        /* Form Styling */
         .contact-form-container{
             background-color: #1a1a1a;
             border: 1px solid gray;
@@ -205,12 +194,11 @@
             max-width: 700px;
             box-shadow: 0 0 25px rgba(0,0,0,0.5);
             text-align: left;
-            animation: fadeInScale 0.8s ease-out forwards; /* Form entrance animation */
-            position: relative; /* For pseudo-elements */
-            overflow: hidden; /* Hide overflow from pseudo-elements */
+            animation: fadeInScale 0.8s ease-out forwards;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Subtle glowing border effect for the form container */
         .contact-form-container::before {
             content: '';
             position: absolute;
@@ -262,25 +250,24 @@
 
         .form-group input,
         .form-group textarea{
-            width: calc(100% - 40px); /* Account for padding */
+            width: calc(100% - 40px);
             padding: 15px 20px;
             background-color: #0f1217;
-            border: 1px solid #4acfee; /* Light blue border */
+            border: 1px solid #4acfee;
             border-radius: 10px;
             color: white;
             font-size: 16px;
             outline: none;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease; /* Added transform for pop */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
         }
 
         .form-group input:focus,
         .form-group textarea:focus{
-            border-color: #53f8c9; /* Greenish border on focus */
-            box-shadow: 0 0 20px rgba(83, 248, 201, 0.7); /* Stronger glowing effect on focus */
-            transform: scale(1.01); /* Subtle pop effect on focus */
+            border-color: #53f8c9;
+            box-shadow: 0 0 20px rgba(83, 248, 201, 0.7);
+            transform: scale(1.01);
         }
 
-        /* Floating label effect */
         .form-group input:focus + label,
         .form-group input:not(:placeholder-shown) + label,
         .form-group textarea:focus + label,
@@ -288,14 +275,14 @@
             top: -10px;
             left: 15px;
             font-size: 12px;
-            color: #4acfee; /* Label color changes on focus/fill */
-            background-color: #1a1a1a; /* Match form container background */
+            color: #4acfee;
+            background-color: #1a1a1a;
             padding: 0 5px;
             border-radius: 5px;
         }
 
         .form-group textarea{
-            resize: vertical; /* Allow vertical resizing */
+            resize: vertical;
             min-height: 120px;
         }
 
@@ -305,33 +292,26 @@
             border-radius: 25px;
             font-weight: 700;
             cursor: pointer;
-            background: linear-gradient(to right, #4acfee, #0099ff); /* Gradient background */
-            color: black; /* Text color for contrast */
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            color: black;
             font-size: 18px;
-            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); /* Initial shadow */
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
             z-index: 1;
-            /* Add a subtle pulse animation */
             animation: pulse 2s infinite ease-in-out;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); }
-            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0, 153, 255, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4); }
-        }
-
         .submit-button:hover{
-            background: linear-gradient(to right, #53f8c9, #02d79a); /* Change gradient on hover */
-            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6); /* Larger shadow on hover */
-            transform: translateY(-3px) scale(1.02); /* Slight lift and scale effect */
-            animation: none; /* Stop pulse on hover */
+            background: linear-gradient(to right, #53f8c9, #02d79a);
+            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6); 
+            transform: translateY(-3px) scale(1.02); 
+            animation: none;
         }
 
         .submit-button:active{
-            transform: translateY(0) scale(0.98); /* Press down effect */
+            transform: translateY(0) scale(0.98);
             box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
         }
 
@@ -342,7 +322,7 @@
             justify-content: space-between;
             backdrop-filter: blur(10px);
             height: 100px;
-            opacity: 0; /* Start hidden for animation */
+            opacity: 0;
             animation: footerSlideIn 0.8s ease-out forwards;
             animation-delay: 0.4s;
         }
@@ -371,6 +351,7 @@
         }
 
         .footer p{
+            color: white;
             margin: 0 20px;
         }
 
@@ -388,6 +369,11 @@
             border: 1px solid rgb(0, 130, 211);
             transition: 0.3s;
             margin: 0 10px;
+        }
+
+        .footer a:hover {
+            background-color: rgba(0, 130, 211, 0.3);
+            box-shadow: 0 0 10px rgba(0, 130, 211, 0.7);
         }
 
         .autoDisplay{
@@ -476,11 +462,13 @@
     <div class="container">
         <header>
             <div class="head-left">
-                <img src="img/2.png" alt="NexGenPlayz Logo">
+                <img src="img/2.png" alt="Logo">
             </div>
 
             <div class="head-right">
+                <p><a href="Login.html">LOGIN</a></p>
                 <p><a href="Home.html">HOME</a></p>
+                <p><a href="Games.html">GAMES</a></p>
                 <p><a href="About.html">ABOUT</a></p>
                 <p><a href="Support.html">SUPPORT</a></p>
                 <p><a href="#">PROFILE</a></p>
@@ -510,7 +498,9 @@
                         <textarea id="message" name="message" placeholder=" " required></textarea>
                         <label for="message">Your Message</label>
                     </div>
+                    <center>
                     <button type="submit" class="submit-button">Send Message</button>
+                    </center>
                 </form>
             </div>
         </section>
