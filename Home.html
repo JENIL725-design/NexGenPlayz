@@ -405,6 +405,42 @@ header{
         transform: translateY(0) scale(1);
     }
 }
+
+@media (max-width: 900px) {
+    header {
+        padding: 10px 20px;
+        flex-direction: column; /* Stack header items vertically */
+        align-items: center;
+        gap: 10px; /* Space between logo and navigation */
+    }
+
+    .head-left {
+        width: 100%;
+        justify-content: left;
+    }
+
+    .head-left img {
+        width: 60px; /* Smaller logo */
+        height: 60px;
+        margin-right: 0;
+    }
+
+   .head-right {
+        font-size: 12px;
+        padding: 0 5px;
+        /* Ensure head-right remains visible and adjusts */
+        display: flex; /* Ensure it's not hidden if a previous rule set display:none */
+        flex-wrap: wrap; /* Allow links to wrap */
+        justify-content: center; /* Center links if they wrap */
+        width: 100%; /* Take full width to allow wrapping */
+    }
+    .head-right a{
+        text-align: center; /* Center text within links */
+        font-size: 12px;
+        padding: 5px 8px; /* Adjust padding for smaller links */
+    }
+}
+
 </style>
 </head>
 <body>
@@ -420,7 +456,7 @@ header{
                 <p><a href="Games.html">GAMES</a></p>
                 <p><a href="About.html">ABOUT</a></p>
                 <p><a href="Support.html">SUPPORT</a></p>
-                <p><a href="#">PROFILE</a></p>
+                <p><a href="Profile.html">PROFILE</a></p>
             </div>
         </header>
     

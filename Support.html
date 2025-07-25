@@ -200,27 +200,26 @@
         }
 
         .contact-form-container::before {
-            content: '';
+            content: ' ';
             position: absolute;
             top: -5px;
             left: -5px;
             right: -5px;
             bottom: -5px;
-            background: linear-gradient(45deg, #4acfee, #53f8c9, #02d79a, #6070fb, #2a46ff, #0099ff, #4acfee);
-            background-size: 400% 400%;
+            background: linear-gradient(to right, #4acfee, #53f8c9, #02d79a, #6070fb, #2a46ff, #0099ff, #4acfee);
+            background-size: 200%;
             z-index: -1;
             filter: blur(15px);
             opacity: 0.7;
             border-radius: 25px;
-            animation: glowingBorder 5s linear infinite alternate;
+            animation: animate-gradient 2.5s linear infinite;
         }
 
-        @keyframes glowingBorder {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
+        @keyframes animate-gradient{
+            to{
+                background-position: 200%;
+            }
+        }  
 
         @keyframes fadeInScale {
             from {
@@ -471,7 +470,7 @@
                 <p><a href="Games.html">GAMES</a></p>
                 <p><a href="About.html">ABOUT</a></p>
                 <p><a href="Support.html">SUPPORT</a></p>
-                <p><a href="#">PROFILE</a></p>
+                <p><a href="Profile.html">PROFILE</a></p>
             </div>
         </header>
 

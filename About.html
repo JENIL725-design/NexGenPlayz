@@ -242,6 +242,136 @@
                 transform: translateY(0) scale(1);
             }
         }
+        /* Mobile Responsiveness for About.html */
+
+/* Header adjustments already present and good */
+@media (max-width: 900px) {
+    header {
+        padding: 10px 20px;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .head-left {
+        width: 100%;
+        justify-content: left;
+    }
+
+    .head-left img {
+        width: 60px;
+        height: 60px;
+        margin-right: 0;
+    }
+
+    .head-right {
+        font-size: 12px;
+        padding: 0 5px;
+        /* Ensure head-right remains visible and adjusts */
+        display: flex; /* Ensure it's not hidden if a previous rule set display:none */
+        flex-wrap: wrap; /* Allow links to wrap */
+        justify-content: center; /* Center links if they wrap */
+        width: 100%; /* Take full width to allow wrapping */
+    }
+    .head-right a{
+        text-align: center; /* Center text within links */
+        font-size: 12px;
+        padding: 5px 8px; /* Adjust padding for smaller links */
+    }
+}
+
+
+/* About Section adjustments */
+@media (max-width: 768px) {
+    .about-section {
+        width: 90%; /* Increase width for better use of space */
+        margin-top: 100px; /* Adjust top margin to account for stacked header */
+        margin-bottom: 50px;
+    }
+
+    .about-section h1 {
+        font-size: 50px; /* Smaller heading for readability */
+        line-height: 1.2; /* Adjust line height for better readability */
+    }
+
+    .about-section h3 {
+        font-size: 28px; /* Smaller sub-heading */
+        margin-bottom: 30px;
+    }
+
+    .about-content {
+        gap: 20px; /* Reduce gap between paragraphs */
+        font-size: 16px; /* Slightly smaller font for paragraphs */
+        text-align: left; /* Keep justified, but left align if justified looks weird on narrow screens */
+    }
+
+    .about-card-grid {
+        grid-template-columns: 1fr; /* Single column layout for cards */
+        gap: 20px; /* Adjust gap between stacked cards */
+        margin-top: 50px;
+    }
+
+    .about-card {
+        padding: 20px; /* Adjust card padding */
+    }
+
+    .about-card h2 {
+        font-size: 28px; /* Smaller card title */
+    }
+
+    .about-card p {
+        font-size: 14px; /* Smaller card paragraph text */
+    }
+}
+
+/* Further refinements for very small screens (e.g., iPhone SE) */
+@media (max-width: 480px) {
+    .about-section h1 {
+        font-size: 35px;
+    }
+
+    .about-section h3 {
+        font-size: 20px;
+    }
+
+    .about-content {
+        font-size: 14px;
+    }
+
+    .about-card h2 {
+        font-size: 24px;
+    }
+
+    .about-card p {
+        font-size: 13px;
+    }
+}
+
+/* Footer adjustments for mobile */
+@media (max-width: 768px) {
+    .footer {
+        flex-direction: column; /* Stack footer items vertically */
+        height: auto; /* Auto height to accommodate stacked content */
+        padding: 20px 0; /* Add vertical padding */
+        text-align: center;
+    }
+
+    .footer p {
+        margin: 10px 0; /* Adjust margin for stacked paragraphs */
+        font-size: 14px;
+    }
+
+    .footer ul {
+        margin-right: 0; /* Remove right margin */
+        padding: 0; /* Remove default list padding */
+        justify-content: center; /* Center the social icons */
+        flex-wrap: wrap; /* Allow icons to wrap if space is tight */
+    }
+
+    .footer a {
+        margin: 5px; /* Adjust spacing between social icons */
+    }
+}
     </style>
 </head>
 <body>
@@ -257,7 +387,7 @@
                 <p><a href="Games.html">GAMES</a></p>
                 <p><a href="About.html">ABOUT</a></p>
                 <p><a href="Support.html">SUPPORT</a></p>
-                <p><a href="#">PROFILE</a></p>
+                <p><a href="Profile.html">PROFILE</a></p>
             </div>
         </header>
 
