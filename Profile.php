@@ -1,0 +1,952 @@
+<?php
+// This line MUST be at the very top of the file.
+// It includes our new dynamic header and starts the session.
+include 'header.php';
+?>
+<?php
+session_start();
+require 'db_connect.php';
+
+// Check if the user is logged in, if not then redirect to login page
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
+    header("location: Login.php");
+    exit;
+}
+
+// Get user ID from session
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's main profile data
+$stmt_user = $conn->prepare("SELECT username, tagline, profile_picture FROM users WHERE user_id = :user_id");
+$stmt_user->bindParam(':user_id', $user_id);
+$stmt_user->execute();
+$user_data = $stmt_user->fetch(PDO::FETCH_ASSOC);
+
+// Fetch user's game statistics
+$stmt_stats = $conn->prepare("SELECT * FROM user_stats WHERE user_id = :user_id");
+$stmt_stats->bindParam(':user_id', $user_id);
+$stmt_stats->execute();
+$stats_data = $stmt_stats->fetch(PDO::FETCH_ASSOC);
+
+// Fetch user's owned games
+// This uses a JOIN to get game titles and images from the 'games' table
+$stmt_games = $conn->prepare("
+    SELECT g.title, g.cover_image 
+    FROM user_owned_games uog
+    JOIN games g ON uog.game_id = g.game_id
+    WHERE uog.user_id = :user_id
+");
+$stmt_games->bindParam(':user_id', $user_id);
+$stmt_games->execute();
+$owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
+
+// (You would do a similar fetch for achievements)
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* General body styles from provided files */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            position: relative;
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+        }
+
+        /* Background glow effects from Support.html */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(100px);
+            z-index: -2;
+            animation: backgroundGlow 15s infinite alternate;
+        }
+
+        body::before {
+            background-color: #4acfee;
+            top: -50px;
+            left: -50px;
+        }
+
+        body::after {
+            background-color: #53f8c9;
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 7.5s;
+        }
+
+        @keyframes backgroundGlow {
+            0% { transform: translate(0, 0); opacity: 0.1; }
+            25% { transform: translate(50px, 50px); opacity: 0.15; }
+            50% { transform: translate(0, 100px); opacity: 0.1; }
+            75% { transform: translate(-50px, 50px); opacity: 0.15; }
+            100% { transform: translate(0, 0); opacity: 0.1; }
+        }
+
+        /* Container styles from provided files */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            justify-content: center;
+            padding-top: 100px; /* Adjust for fixed header */
+            padding-bottom: 50px; /* Adjust for fixed footer */
+        }
+
+        /* Header styles from provided files */
+        header {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 40px;
+            z-index: 999;
+            backdrop-filter: blur(0px);
+            opacity: 0;
+            animation: headerSlideIn 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes headerSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .head-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .head-left img {
+            width: 80px;
+            height: 80px;
+            margin-right: 20px;
+        }
+
+        .head-left button {
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .head-left button:hover {
+            opacity: 0.5;
+        }
+
+        .head-right {
+            display: flex;
+        }
+
+        .head-right a {
+            text-decoration: none;
+            padding-left: 25px;
+            color: white;
+            font-size: 15px;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .head-right a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            transition: width 0.3s ease;
+        }
+
+        @keyframes animate-gradient{
+            to{
+                background-position: 200%;
+            }
+        }
+
+        /* Profile section styles - adapted from support-section and form-section */
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 80%;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at top left, rgba(74, 207, 238, 0.1) 0%, transparent 30%),
+                        radial-gradient(circle at bottom right, rgba(83, 248, 201, 0.1) 0%, transparent 30%);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            border-radius: 25px;
+            padding: 50px 0;
+        }
+
+        .profile-section h1 {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-weight: 900;
+            font-size: 80px;
+            margin: 25px 0;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        .profile-section h3 {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 40px;
+            color: gray;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+            margin-bottom: 50px;
+        }
+
+        .profile-content-container {
+            background-color: #1a1a1a;
+            border: 1px solid gray;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 800px; /* Wider for profile content */
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
+            text-align: left;
+            animation: fadeInScale 0.8s ease-out forwards;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-content-container::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(to right, #4acfee, #53f8c9, #02d79a, #6070fb, #2a46ff, #0099ff, #4acfee);
+            background-size: 200%;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.7;
+            border-radius: 25px;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #4acfee;
+            box-shadow: 0 0 20px rgba(74, 207, 238, 0.7);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-name {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 45px;
+            margin: 10px 0 5px 0;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        .profile-tagline {
+            color: lightgray;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .profile-details {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .detail-item {
+            background-color: #0f1217;
+            border: 1px solid #4acfee;
+            border-radius: 10px;
+            padding: 15px 20px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .detail-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(74, 207, 238, 0.4);
+        }
+
+        .detail-item i {
+            font-size: 24px;
+            color: #53f8c9;
+        }
+
+        .detail-item span {
+            font-size: 16px;
+            color: white;
+        }
+
+        .profile-sections {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .profile-card {
+            background-color: #0f1217;
+            border: 1px solid gray;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: left;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: 0.5s;
+        }
+
+        .profile-card:hover {
+            box-shadow: 0 0 25px rgb(211, 211, 211);
+        }
+
+        .profile-card h2 {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-weight: 900;
+            font-size: 35px;
+            margin-top: 0;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        /* Styles for Game Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background-color: #1a1a1a;
+            border: 1px solid #53f8c9;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(83, 248, 201, 0.6);
+        }
+
+        .stat-card i {
+            font-size: 40px;
+            color: #4acfee;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            color: lightgray;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        /* Styles for Achievements Grid */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .achievement-card {
+            background-color: #1a1a1a;
+            border: 1px solid #02d79a;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(2, 215, 154, 0.6);
+        }
+
+        .achievement-card i {
+            font-size: 40px;
+            color: #53f8c9;
+            margin-bottom: 10px;
+        }
+
+        .achievement-card .title {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .achievement-card .status {
+            font-size: 14px;
+            color: #4acfee;
+            font-weight: bold;
+        }
+
+        /* Styles for Owned Games Grid (existing) */
+        .owned-games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjust card size */
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+            justify-content: center; /* Center cards in the grid */
+        }
+
+        .game-card {
+            background-color: #1a1a1a;
+            border: 1px solid #4acfee;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(74, 207, 238, 0.6);
+        }
+
+        .game-card img {
+            width: 100%;
+            max-width: 150px; /* Limit image size */
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            object-fit: cover;
+            aspect-ratio: 3/4; /* Common aspect ratio for game covers */
+            border: 2px solid rgba(83, 248, 201, 0.5);
+        }
+
+        .game-card span {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+        }
+
+
+        .edit-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            color: black;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            margin-top: 30px;
+        }
+
+        .edit-button:hover {
+            background: linear-gradient(to right, #53f8c9, #02d79a);
+            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6);
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .edit-button:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
+        }
+
+        /* Footer styles from provided files */
+        .footer {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+            height: 100px;
+            opacity: 0;
+            animation: footerSlideIn 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        @keyframes footerSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .footer p {
+            color: white;
+            margin: 0 20px;
+        }
+
+        .footer ul {
+            display: flex;
+            list-style: none;
+            margin-right: 140px;
+            padding: 0;
+        }
+
+        .footer a {
+            text-decoration: none;
+            color: white;
+            padding: 7px 7px;
+            border-radius: 50px;
+            border: 1px solid rgb(0, 130, 211);
+            transition: 0.3s;
+            margin: 0 10px;
+        }
+
+        .footer a:hover {
+            background-color: rgba(0, 130, 211, 0.3);
+            box-shadow: 0 0 10px rgba(0, 130, 211, 0.7);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-section h1 {
+                font-size: 60px;
+            }
+            .profile-section h3 {
+                font-size: 30px;
+            }
+            header {
+                padding: 10px 20px;
+            }
+            .head-left img {
+                width: 60px;
+                height: 60px;
+            }
+            .head-right a {
+                padding-left: 15px;
+                font-size: 13px;
+            }
+            .profile-content-container {
+                padding: 25px;
+                width: 90%;
+            }
+            .profile-name {
+                font-size: 35px;
+            }
+            .profile-tagline {
+                font-size: 16px;
+            }
+            .profile-details {
+                grid-template-columns: 1fr; /* Stack details on smaller screens */
+            }
+            .profile-card h2 {
+                font-size: 30px;
+            }
+            .stats-grid, .achievements-grid, .owned-games-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Adjust card size for smaller screens */
+            }
+            .footer {
+                flex-direction: column;
+                height: auto;
+                padding: 20px 0;
+            }
+            .footer ul {
+                margin: 10px 0 0 0;
+                padding: 0;
+                justify-content: center;
+            }
+            .footer p {
+                margin: 10px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-section h1 {
+                font-size: 45px;
+            }
+            .profile-section h3 {
+                font-size: 25px;
+            }
+            .head-right {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+            .head-right p {
+                margin: 5px 0;
+            }
+            .head-right a {
+                padding-left: 0;
+            }
+            .profile-picture {
+                width: 100px;
+                height: 100px;
+            }
+            .profile-name {
+                font-size: 30px;
+            }
+            .stats-grid, .achievements-grid, .owned-games-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Further adjust card size for mobile */
+            }
+        }
+
+        /* Modal/Message Box Styles */
+        .message-box-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .message-box-content {
+            background-color: #1a1a1a;
+            border: 1px solid #4acfee;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(74, 207, 238, 0.7);
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+
+        .message-box-content h3 {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 30px;
+            margin-top: 0;
+            background: linear-gradient(to right, #4acfee , #53f8c9 , #02d79a , #6070fb ,#2a46ff , #0099ff , #4acfee );
+            background-size: 200%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animate-gradient 2.5s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .message-box-content p {
+            color: lightgray;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .message-box-close-button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            color: black;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .message-box-close-button:hover {
+            background: linear-gradient(to right, #53f8c9, #02d79a);
+            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6);
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .message-box-close-button:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+            <div class="head-left">
+                <img src="img/2.png" alt="logo">
+            </div>
+
+            <div class="head-right">
+                <p><a href="Login.php">LOGIN</a></p>
+                <p><a href="Home.php">HOME</a></p>
+                <p><a href="Games.php">GAMES</a></p>
+                <p><a href="About.php">ABOUT</a></p>
+                <p><a href="Support.php">SUPPORT</a></p>
+                <p><a href="Profile.php">PROFILE</a></p>
+            </div>
+        
+
+        <section class="profile-section">
+            <h1>Your Profile</h1>
+            <h3>Manage Your Gaming Journey</h3>
+
+            <div class="profile-content-container">
+                <div class="profile-header">
+                <img src="<?php echo htmlspecialchars($user_data['profile_picture'] ?? 'img/cat.jpeg'); ?>" alt="Profile Picture" class="profile-picture">
+    
+                <h2 class="profile-name"><?php echo htmlspecialchars($user_data['username'] ?? 'Unknown Gamer'); ?></h2>
+    
+                <p class="profile-tagline">"<?php echo htmlspecialchars($user_data['tagline'] ?? 'No rank set'); ?>"</p>
+                </div>
+
+                <div class="profile-sections">
+                    <div class="profile-card">
+                        <h2>Game Statistics</h2>
+                        <div class="stats-grid">
+                        <div class="stat-card">
+                        <i class='bx bx-game'></i>
+                        <span class="label">Total Games Played</span>
+                        <span class="value"><?php echo htmlspecialchars($stats_data['games_played'] ?? 0); ?></span>
+                    </div>
+                    <div class="stat-card">
+                        <i class='bx bx-time-five'></i>
+                        <span class="label">Hours Logged</span>
+                        <span class="value"><?php echo htmlspecialchars($stats_data['hours_logged'] ?? 0); ?>+</span>
+                    </div>
+                            <div class="stat-card">
+                                <i class='bx bx-trophy'></i>
+                                <span class="label">Wins</span>
+                                <span class="value">800</span>
+                            </div>
+                            <div class="stat-card">
+                                <i class='bx bx-x-circle'></i>
+                                <span class="label">Losses</span>
+                                <span class="value">100</span>
+                            </div>
+                            <div class="stat-card">
+                                <i class='bx bx-medal'></i>
+                                <span class="label">Current Rank</span>
+                                <span class="value">Diamond III</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <h2>Achievements</h2>
+                        <div class="achievements-grid">
+                            <div class="achievement-card">
+                                <i class='bx bx-target-lock'></i>
+                                <span class="title">First Blood (FPS)</span>
+                                <span class="status">Unlocked</span>
+                            </div>
+                            <div class="achievement-card">
+                                <i class='bx bx-map-alt'></i>
+                                <span class="title">Master Explorer (RPG)</span>
+                                <span class="status">Unlocked</span>
+                            </div>
+                            <div class="achievement-card">
+                                <i class='bx bx-car'></i>
+                                <span class="title">Speed Demon (Racing)</span>
+                                <span class="status">Unlocked</span>
+                            </div>
+                            <div class="achievement-card">
+                                <i class='bx bx-brain'></i>
+                                <span class="title">Strategist (Strategy)</span>
+                                <span class="status">Unlocked</span>
+                            </div>
+                            <div class="achievement-card">
+                                <i class='bx bx-group'></i>
+                                <span class="title">Community Champion</span>
+                                <span class="status">Unlocked</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <h2>Owned Games</h2>
+                        <div class="owned-games-grid">
+                        <?php foreach ($owned_games as $game): ?>
+                        <div class="game-card">
+                        <img src="<?php echo htmlspecialchars($game['cover_image']); ?>" alt="<?php echo htmlspecialchars($game['title']); ?> Cover">
+                        <span><?php echo htmlspecialchars($game['title']); ?></span>
+                        </div>
+                        <?php endforeach; ?>
+        
+                        <?php if (empty($owned_games)): ?>
+                        <p>No games owned yet.</p>
+                        <?php endif; ?>
+                    </div>
+                        <div class="owned-games-grid">
+                            <div class="game-card">
+                                <img src="img/Black.png" alt="BlackMyth Wukong Cover">
+                                <span>BlackMyth Wukong</span>
+                            </div>
+                            <div class="game-card">
+                                <img src="img/Blackops6.png" alt="Call of Duty: Black Ops 6 Cover">
+                                <span>Call of Duty: Black Ops 6</span>
+                            </div>
+                            <div class="game-card">
+                                <img src="img/Brother.png" alt="Assassin's Creed Brotherhood Cover">
+                                <span>Assassin's Creed Brotherhood</span>
+                            </div>
+                            <div class="game-card">
+                                <img src="img/Forza5.png" alt="Forza 5 Cover">
+                                <span>Forza 5</span>
+                            </div>
+                            <div class="game-card">
+                                <img src="img/ill.png" alt="ILL Cover">
+                                <span>ILL</span>
+                            </div>
+                            <div class="game-card">
+                                <img src="img/JustCause4.png" alt="JUST CAUSE 4">
+                                <span>JUST CAUSE 4</span>
+                            </div>
+                            <div class="game-card">
+                                <img src="img/Sekiro.png" alt="Sekiro Cover">
+                                <span>Sekiro</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="edit-button" onclick="showEditMessage()">Edit Profile</button>
+            </div>
+        </section>
+<?php include 'footer.php'; ?>
+    </div>
+
+    <!-- Message Box Overlay -->
+    <div id="messageBoxOverlay" class="message-box-overlay">
+        <div class="message-box-content">
+            <h3>Edit Profile</h3>
+            <p>This feature is currently under development. Please check back later for profile editing capabilities!</p>
+            <button class="message-box-close-button" onclick="hideEditMessage()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to show the message box
+        function showEditMessage() {
+            const messageBox = document.getElementById('messageBoxOverlay');
+            if (messageBox) {
+                messageBox.style.display = 'flex'; // Use flex to center content
+            }
+        }
+
+        // Function to hide the message box
+        function hideEditMessage() {
+            const messageBox = document.getElementById('messageBoxOverlay');
+            if (messageBox) {
+                messageBox.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
