@@ -1,3 +1,25 @@
+<?php
+session_start();
+require 'db_connect.php'; // Ensure this file exists and connects to your database
+
+// Initialize the $games variable as an empty array
+$games = [];
+
+// Fetch all games from the database
+try {
+    $stmt = $conn->prepare("SELECT * FROM games ORDER BY game_id ASC");
+    $stmt->execute();
+    $games = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // If there's an error, log it and the $games variable remains an empty array.
+    error_log("Database Error: " . $e->getMessage());
+}
+
+// Function to check if the user is logged in
+function isUserLoggedIn() {
+    return isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -185,6 +207,10 @@ header {
 }
 
 .card button {
+    text-decoration: none;
+    padding-left: 25px;
+    color: white;
+    font-size: 15px;
     position: absolute;
     bottom: 15px;
     left: 21px;
@@ -471,76 +497,76 @@ header {
             <h3>Soo Many Games To Choose !</h3>
 
             <div class="info-card">
+
                 <div class="card autoDisplay">
                     <h1>Top</h1>
                     <video src="video/feature-1.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
                 </div>
-
+                        
                  <div class="card autoDisplay">
                     <h1>Forza 5</h1>
                     <video src="video/FORZA 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=1">$48</a></button>
                 </div>
 
                  <div class="card autoDisplay">
                     <h1>BlackMyth Wukong</h1>
                     <video src="video/BLACK MYTH 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=2">$48</a></button>
                 </div>
 
                  <div class="card autoDisplay">
                     <h1>Apex Legends</h1>
                     <video src="video/APEXLEGEND 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=3">$48</a></button>
                 </div>
 
                  <div class="card autoDisplay">
                     <h1>ILL</h1>
                     <video src="video/ILL 480.mp4" autoplay loop muted plays-inline></video>
-                     <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=4">$48</a></button>
                 </div>
 
                 <div class="card autoDisplay">
                     <h1>Assassin's Creed Brotherhood</h1>
                     <video src="video/Assassin's Creed Brotherhood 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=5">$48</a></button>
                 </div>
 
                 <div class="card autoDisplay">
                     <h1>Call of Duty: Black Ops 6</h1>
                     <video src="video/Call of Duty Black Ops 6 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=6">$48</a></button>
                 </div>
 
                 <div class="card autoDisplay">
                     <h1>Cyberpunk 2077</h1>
                     <video src="video/Cyberpunk 2077 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=7">$48</a></button>
                 </div>
 
                 <div class="card autoDisplay">
                     <h1>GTA VI</h1>
                     <video src="video/GTA VI 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=8">$48</a></button>
                 </div>
 
                 <div class="card autoDisplay">
                     <h1>JUST CAUSE 4</h1>
                     <video src="video/JUST CAUSE 4 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=9">$48</a></button>
                 </div>
 
                 <div class="card autoDisplay">
                     <h1>Sekiro</h1>
                     <video src="video/Sekiro 480.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=10">$48</a></button>
                 </div>
                 
                 <div class="card autoDisplay">
                     <h1>Battlefiled 2042</h1>
                     <video src="video/Battlefiled 2042.mp4" autoplay loop muted plays-inline></video>
-                    <button>Coming Soon</button>
+                    <button><a href="process_purchase.php?game_id=11">$48</a></button>
                 </div>
 
                 <div class="card">
@@ -560,5 +586,14 @@ header {
         </section>
 <?php include 'footer.php'; ?>
     </div>
+    <?php foreach ($games as $game): ?>
+                    <div class="card autoDisplay">
+                        <h1><?php echo htmlspecialchars($game['title']); ?></h1>
+                        <video src="<?php echo htmlspecialchars($game['video_preview']); ?>" autoplay loop muted plays-inline></video>
+                        <button onclick="handlePurchaseClick(<?php echo htmlspecialchars($game['game_id']); ?>)">
+                            $<?php echo htmlspecialchars($game['price']); ?>
+                        </button>
+                    </div>
+                <?php endforeach; ?>
 </body>
 </html>

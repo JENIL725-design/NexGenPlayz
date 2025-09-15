@@ -861,7 +861,6 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
         
                         <?php if (empty($owned_games)): ?>
-                        <p>No games owned yet.</p>
                         <?php endif; ?>
                     </div>
                         <div class="owned-games-grid">
