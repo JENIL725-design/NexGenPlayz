@@ -12,20 +12,65 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Function to handle form submissions and display the page
-function handle_and_display($conn) {
-    $message = "";
+// Handle login POST request
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
+    $admin_email = $_POST['email'];
+    $admin_password = $_POST['password'];
 
-    // Handle form submissions if an admin is logged in
-    if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            if (isset($_POST['add_game'])) {
-                $game_title = $_POST['game_title'];
-                $cover_image = $_POST['cover_image'];
-                $video_preview = $_POST['video_preview'];
-                
-                $stmt = $conn->prepare("INSERT INTO games (title, cover_image, video_preview) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $game_title, $cover_image, $video_preview);
+    // Corrected SQL query to check the 'admins' table
+    $stmt = $conn->prepare("SELECT password_hash FROM admins WHERE email = ?");
+    $stmt->bind_param("s", $admin_email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+        if ($row['password_hash'] === $admin_password) {
+            $_SESSION['admin_logged_in'] = true;
+            header("Location: Admin_Login.php");
+            exit();
+        } else {
+            $error_message = "Invalid password.";
+        }
+    } else {
+        $error_message = "Invalid email or you are not an administrator.";
+    }
+    $stmt->close();
+}
+
+// Handle form submissions if an admin is logged in
+if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST['add_game'])) {
+            $game_title = $_POST['game_title'];
+            $game_price = $_POST['game_price'];
+            
+            // Define the upload directories relative to your file
+            $cover_dir = "img/";
+            $video_dir = "video/";
+            
+            // Handle image upload
+            $cover_image_path = "";
+            if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] == 0) {
+                $cover_image_path = $cover_dir . basename($_FILES['cover_image']['name']);
+                if (!move_uploaded_file($_FILES['cover_image']['tmp_name'], $cover_image_path)) {
+                    $message = "Error uploading cover image.";
+                }
+            }
+            
+            // Handle video upload
+            $video_preview_path = "";
+            if (isset($_FILES['video_preview']) && $_FILES['video_preview']['error'] == 0) {
+                $video_preview_path = $video_dir . basename($_FILES['video_preview']['name']);
+                if (!move_uploaded_file($_FILES['video_preview']['tmp_name'], $video_preview_path)) {
+                    $message = "Error uploading video preview.";
+                }
+            }
+            
+            // Check if both files were uploaded successfully before inserting into the database
+            if ($cover_image_path !== "" && $video_preview_path !== "") {
+                $stmt = $conn->prepare("INSERT INTO games (title, cover_image, video_preview, price) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("sssd", $game_title, $cover_image_path, $video_preview_path, $game_price);
                 
                 if ($stmt->execute()) {
                     $message = "New game added successfully!";
@@ -33,270 +78,386 @@ function handle_and_display($conn) {
                     $message = "Error adding game: " . $stmt->error;
                 }
                 $stmt->close();
-            } elseif (isset($_POST['add_admin'])) {
-                $admin_username = $_POST['admin_username'];
-                $admin_email = $_POST['admin_email'];
-                $admin_password = $_POST['admin_password'];
-
-                // Hash the password before storing it
-                $hashed_password = password_hash($admin_password, PASSWORD_DEFAULT);
+            } else {
+                $message = "Please upload both an image and a video.";
+            }
+        }
+        
+        // --- START OF UPDATED CODE BLOCK ---
+        if (isset($_POST['delete_game'])) {
+            $game_id = $_POST['game_id'];
+        
+            // Start a transaction to ensure atomicity
+            $conn->begin_transaction();
+        
+            try {
+                // First, delete related records from the payments table
+                $stmt_payments = $conn->prepare("DELETE FROM payments WHERE game_id = ?");
+                $stmt_payments->bind_param("i", $game_id);
+                $stmt_payments->execute();
+                $stmt_payments->close();
+        
+                // Then, delete the game from the games table
+                $stmt_games = $conn->prepare("DELETE FROM games WHERE game_id = ?");
+                $stmt_games->bind_param("i", $game_id);
                 
-                $stmt = $conn->prepare("INSERT INTO admins (username, email, password_hash) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $admin_username, $admin_email, $hashed_password);
-                
-                if ($stmt->execute()) {
-                    $message = "New admin added successfully!";
+                if ($stmt_games->execute()) {
+                    $message = "Game and related payments deleted successfully!";
+                    $conn->commit(); // Commit the transaction
                 } else {
-                    $message = "Error adding admin: " . $stmt->error;
+                    throw new Exception("Error deleting game: " . $stmt_games->error);
                 }
-                $stmt->close();
+                $stmt_games->close();
+        
+            } catch (Exception $e) {
+                // An error occurred, rollback the transaction
+                $conn->rollback();
+                $message = "Error: " . $e->getMessage();
             }
         }
+        // --- END OF UPDATED CODE BLOCK ---
     }
+}
 
-    // Start HTML output
-    echo '<!DOCTYPE html>';
-    echo '<html lang="en">';
-    echo '<head>';
-    echo '<meta charset="UTF-8">';
-    echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
-    echo '<title>Admin Panel</title>';
-    echo '<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">';
-    echo '<style>';
-    echo 'body {
-        margin: 0;
-        padding: 0;
-        background-color: black;
-        font-family: Arial, Helvetica, sans-serif;
-        color: white;
-    }
-    .container {
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-    }
-    .header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-    .header h1 {
-        font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-        font-weight: 900;
-        font-size: 80px;
-        background: linear-gradient(to right, #4acfee, #53f8c9, #02d79a, #6070fb, #2a46ff, #0099ff, #4acfee);
-        background-size: 200%;
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: animate-gradient 2.5s linear infinite;
-    }
-    @keyframes animate-gradient {
-        to {
-            background-position: 200%;
+// Handle logout action
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: Admin_Login.php");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #d3d3d3;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
         }
-    }
-    .section-title {
-        font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-        font-weight: 900;
-        font-size: 40px;
-        border-bottom: 2px solid #53f8c9;
-        padding-bottom: 10px;
-        margin-bottom: 30px;
-    }
-    .form-container, .messages-container, .login-container {
-        background-color: #1a1a1a;
-        border: 1px solid gray;
-        border-radius: 20px;
-        padding: 30px;
-        margin-bottom: 40px;
-        width: 100%;
-        max-width: 800px;
-    }
-    .login-container {
-        max-width: 400px;
-        text-align: center;
-    }
-    .form-group {
-        margin-bottom: 20px;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: lightgray;
-    }
-    .form-group input, .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        background-color: #0f1217;
-        border: 1px solid #4acfee;
-        border-radius: 5px;
-        color: white;
-    }
-    .submit-button {
-        padding: 10px 20px;
-        border: none;
-        background: linear-gradient(to right, #4acfee, #53f8c9);
-        color: #1a1a1a;
-        font-weight: bold;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    .submit-button:hover {
-        opacity: 0.8;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        color: white;
-    }
-    table, th, td {
-        border: 1px solid gray;
-    }
-    th, td {
-        padding: 15px;
-        text-align: left;
-    }
-    th {
-        background-color: #0f1217;
-    }
-    .success-message {
-        color: green;
-        margin-top: 10px;
-    }
-    .error-message {
-        color: red;
-        margin-top: 10px;
-    }
-    .logout {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        padding: 10px 20px;
-        background-color: #ff4c4c;
-        color: white;
-        border-radius: 10px;
-        text-decoration: none;
-    }';
-    echo '</style>';
-    echo '</head>';
-    echo '<body>';
-    echo '<div class="container">';
 
-    // Conditional content based on login status
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .login-container, .form-container {
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+
+        h1 {
+            color: #4acfee;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #555;
+            background-color: #3a3a3a;
+            color: #d3d3d3;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #4acfee;
+            box-shadow: 0 0 8px rgba(74, 207, 238, 0.5);
+            outline: none;
+        }
+
+        .submit-button {
+            background-color: #4acfee;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #53f8c9;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: #53f8c9;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .logout-link:hover {
+            background-color: #ff3333;
+        }
+        
+        /* Table Styles */
+        .games-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .games-table th, .games-table td {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: left;
+        }
+        .games-table th {
+            background-color: #2a2a2a;
+        }
+        .games-table img.game-image {
+            width: 80px;
+            height: auto;
+            border-radius: 5px;
+        }
+        .games-table video.game-video {
+            width: 120px;
+            height: auto;
+            border-radius: 5px;
+        }
+        .edit-btn, .delete-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            margin-right: 5px;
+        }
+        .edit-btn {
+            background-color: #4acfee;
+            color: black;
+        }
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        .no-games {
+            text-align: center;
+            color: #999;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 0 25px rgba(211, 211, 211, 0.5);
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-btn:hover, .close-btn:focus {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<?php
     if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-        // Admin is logged in, show the dashboard
-        echo '<a href="?logout" class="logout">Logout</a>';
-        echo '<div class="header">';
-        echo '<h1>Admin Panel</h1>';
-        echo '</div>';
+        // Display admin panel content
+?>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <a href="?logout=true" class="logout-link">Log Out</a>
 
-        if (!empty($message)) {
-            echo '<p class="success-message">' . htmlspecialchars($message) . '</p>';
-        }
-        
-        // Add Game Section
-        echo '<div class="form-container">';
-        echo '<h2 class="section-title">Add a New Game</h2>';
-        echo '<form action="Admin_Login.php" method="POST">';
-        echo '<div class="form-group">';
-        echo '<label for="game_title">Game Title:</label>';
-        echo '<input type="text" id="game_title" name="game_title" required>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<label for="cover_image">Cover Image URL (e.g., img/game_cover.jpg):</label>';
-        echo '<input type="text" id="cover_image" name="cover_image" required>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<label for="video_preview">Video Preview URL (e.g., video/game_trailer.mp4):</label>';
-        echo '<input type="text" id="video_preview" name="video_preview" required>';
-        echo '</div>';
-        echo '<button type="submit" name="add_game" class="submit-button">Add Game</button>';
-        echo '</form>';
-        echo '</div>';
-        
-        // Add Admin Section
-        echo '<div class="form-container">';
-        echo '<h2 class="section-title">Add a New Admin</h2>';
-        echo '<form action="Admin_Login.php" method="POST">';
-        echo '<div class="form-group">';
-        echo '<label for="admin_username">Username:</label>';
-        echo '<input type="text" id="admin_username" name="admin_username" required>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<label for="admin_email">Email:</label>';
-        echo '<input type="email" id="admin_email" name="admin_email" required>';
-        echo '</div>';
-        echo '<div class="form-group">';
-        echo '<label for="admin_password">Password:</label>';
-        echo '<input type="password" id="admin_password" name="admin_password" required>';
-        echo '</div>';
-        echo '<button type="submit" name="add_admin" class="submit-button">Add Admin</button>';
-        echo '</form>';
-        echo '</div>';
+        <?php if (!empty($message)): ?>
+            <p class="success-message"><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
 
-        // Support Messages Section
-        echo '<div class="messages-container">';
-        echo '<h2 class="section-title">Support Messages</h2>';
-        echo '<table>';
-        echo '<thead>';
-        echo '<tr>';
-        echo '<th>ID</th>';
-        echo '<th>Name</th>';
-        echo '<th>Email</th>';
-        echo '<th>Subject</th>';
-        echo '<th>Message</th>';
-        echo '<th>Submitted At</th>';
-        echo '</tr>';
-        echo '</thead>';
-        echo '<tbody>';
-        
-        $sql = "SELECT * FROM support_messages ORDER BY submitted_at DESC";
-        $result = $conn->query($sql);
-        
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo '<tr>';
-                echo '<td>' . htmlspecialchars($row['message_id']) . '</td>';
-                echo '<td>' . htmlspecialchars($row['name']) . '</td>';
-                echo '<td>' . htmlspecialchars($row['email']) . '</td>';
-                echo '<td>' . htmlspecialchars($row['subject']) . '</td>';
-                echo '<td>' . htmlspecialchars($row['message']) . '</td>';
-                echo '<td>' . htmlspecialchars($row['submitted_at']) . '</td>';
-                echo '</tr>';
+        <div class="form-container">
+    <h2 class="section-title">Add New Game</h2>
+    <form action="Admin_Login.php" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="text" name="game_title" placeholder="Game Title" required>
+        </div>
+        <div class="form-group">
+            <label for="cover_image">Cover Image:</label>
+            <input type="file" name="cover_image" id="cover_image" required>
+        </div>
+        <div class="form-group">
+            <label for="video_preview">Video Preview:</label>
+            <input type="file" name="video_preview" id="video_preview" required>
+        </div>
+        <div class="form-group">
+            <input type="text" name="game_price" placeholder="Price (e.g., 59.99)" required>
+        </div>
+        <button type="submit" name="add_game" class="submit-button">Add Game</button>
+    </form>
+</div>
+
+
+        <div class="form-container">
+            <h2 class="section-title">Manage Games</h2>
+            <?php
+            $result = $conn->query("SELECT * FROM games ORDER BY game_id ASC");
+
+            if ($result->num_rows > 0) {
+                echo '<table class="games-table">';
+                echo '<thead><tr><th>ID</th><th>Title</th><th>Cover</th><th>Video</th><th>Price</th><th>Actions</th></tr></thead>';
+                echo '<tbody>';
+                while($row = $result->fetch_assoc()) {
+                    echo '<tr>';
+                    echo '<td>' . htmlspecialchars($row['game_id']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['title']) . '</td>';
+                    echo '<td><img src="' . htmlspecialchars($row['cover_image']) . '" alt="' . htmlspecialchars($row['title']) . '" class="game-image"></td>';
+                    echo '<td><video src="' . htmlspecialchars($row['video_preview']) . '" class="game-video" muted plays-inline></video></td>';
+                    echo '<td>$' . htmlspecialchars($row['price']) . '</td>';
+                    echo '<td>';
+                    echo '<button class="edit-btn" data-id="' . htmlspecialchars($row['game_id']) . '" data-title="' . htmlspecialchars($row['title']) . '" data-cover="' . htmlspecialchars($row['cover_image']) . '" data-video="' . htmlspecialchars($row['video_preview']) . '" data-price="' . htmlspecialchars($row['price']) . '">Edit</button>';
+                    echo '<form action="Admin_Login.php" method="POST" style="display:inline;" onsubmit="return confirm(\'Are you sure you want to delete this game?\');">';
+                    echo '<input type="hidden" name="game_id" value="' . htmlspecialchars($row['game_id']) . '">';
+                    echo '<button type="submit" name="delete_game" class="delete-btn">Delete</button>';
+                    echo '</form>';
+                    echo '</td>';
+                    echo '</tr>';
+                }
+                echo '</tbody>';
+                echo '</table>';
+            } else {
+                echo '<p class="no-games">No games found in the database.</p>';
             }
-        } else {
-            echo '<tr><td colspan="6">No support messages found.</td></tr>';
-        }
+            ?>
+        </div>
+    </div>
 
-        echo '</tbody>';
-        echo '</table>';
-        echo '</div>';
+    <div id="edit-game-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Edit Game</h2>
+            <form action="Admin_Login.php" method="POST">
+                <input type="hidden" name="game_id" id="edit-game-id">
+                <div class="form-group">
+                    <input type="text" name="game_title" id="edit-game-title" placeholder="Game Title" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="cover_image" id="edit-cover-image" placeholder="Cover Image Path" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="video_preview" id="edit-video-preview" placeholder="Video Preview Path" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="game_price" id="edit-game-price" placeholder="Price (e.g., 59.99)" required>
+                </div>
+                <button type="submit" name="update_game" class="submit-button">Update Game</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('edit-game-modal');
+            const closeBtn = document.querySelector('.close-btn');
+            const editButtons = document.querySelectorAll('.edit-btn');
+            const gameIdInput = document.getElementById('edit-game-id');
+            const titleInput = document.getElementById('edit-game-title');
+            const coverInput = document.getElementById('edit-cover-image');
+            const videoInput = document.getElementById('edit-video-preview');
+            const priceInput = document.getElementById('edit-game-price');
 
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const gameData = this.dataset;
+                    gameIdInput.value = gameData.id;
+                    titleInput.value = gameData.title;
+                    coverInput.value = gameData.cover;
+                    videoInput.value = gameData.video;
+                    priceInput.value = gameData.price;
+                    modal.style.display = 'block';
+                });
+            });
+
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+<?php
     } else {
-        // Admin is not logged in, show the login form
+        // Display admin login form
         $error_message = "";
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
             $admin_email = $_POST['email'];
             $admin_password = $_POST['password'];
-
-            $stmt = $conn->prepare("SELECT admin_id, password_hash FROM admins WHERE email = ?");
+            
+            $stmt = $conn->prepare("SELECT password_hash FROM admins WHERE email = ?");
             $stmt->bind_param("s", $admin_email);
             $stmt->execute();
             $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
+            
+            if ($result->num_rows == 1) {
                 $row = $result->fetch_assoc();
-                // Use password_verify to check the password against the stored hash
-               if ($row['password_hash'] === $admin_password) {
-    $_SESSION['admin_logged_in'] = true;
-    header("Location: Admin_Login.php");
-    exit();
-} else {
-    $error_message = "Invalid password.";
-}
+                if ($row['password_hash'] === $admin_password) {
+                    $_SESSION['admin_logged_in'] = true;
+                    header("Location: Admin_Login.php");
+                    exit();
+                } else {
+                    $error_message = "Invalid password.";
+                }
             } else {
                 $error_message = "Invalid email or you are not an administrator.";
             }
@@ -320,20 +481,13 @@ function handle_and_display($conn) {
         echo '</div>';
     }
 
-    echo '</div>';
-    echo '</body>';
-    echo '</html>';
-}
+    $conn->close();
 
-// Handle logout action
-if (isset($_GET['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Location: Admin_Login.php");
-    exit();
-}
-
-handle_and_display($conn);
-
-$conn->close();
+    if (isset($_GET['logout'])) {
+        session_destroy();
+        header("Location: Admin_Login.php");
+        exit();
+    }
 ?>
+</body>
+</html>

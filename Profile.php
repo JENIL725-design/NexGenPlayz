@@ -863,36 +863,6 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                         <?php if (empty($owned_games)): ?>
                         <?php endif; ?>
                     </div>
-                        <div class="owned-games-grid">
-                            <div class="game-card">
-                                <img src="img/Black.png" alt="BlackMyth Wukong Cover">
-                                <span>BlackMyth Wukong</span>
-                            </div>
-                            <div class="game-card">
-                                <img src="img/Blackops6.png" alt="Call of Duty: Black Ops 6 Cover">
-                                <span>Call of Duty: Black Ops 6</span>
-                            </div>
-                            <div class="game-card">
-                                <img src="img/Brother.png" alt="Assassin's Creed Brotherhood Cover">
-                                <span>Assassin's Creed Brotherhood</span>
-                            </div>
-                            <div class="game-card">
-                                <img src="img/Forza5.png" alt="Forza 5 Cover">
-                                <span>Forza 5</span>
-                            </div>
-                            <div class="game-card">
-                                <img src="img/ill.png" alt="ILL Cover">
-                                <span>ILL</span>
-                            </div>
-                            <div class="game-card">
-                                <img src="img/JustCause4.png" alt="JUST CAUSE 4">
-                                <span>JUST CAUSE 4</span>
-                            </div>
-                            <div class="game-card">
-                                <img src="img/Sekiro.png" alt="Sekiro Cover">
-                                <span>Sekiro</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
