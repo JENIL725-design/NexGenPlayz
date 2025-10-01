@@ -95,11 +95,11 @@ header {
     opacity: 0.5;
 }
 
-.head-right {
+.nav-links {
     display: flex;
 }
 
-.head-right a {
+.nav-links a {
     text-decoration: none;
     padding-left: 25px;
     color: white;
@@ -482,13 +482,19 @@ header {
                 <img src="img/2.png" alt="logo">
             </div>
 
-            <div class="head-right">
-                <p><a href="Login.php">LOGIN</a></p>
+           <div class="nav-links">
                 <p><a href="Home.php">HOME</a></p>
                 <p><a href="Games.php">GAMES</a></p>
                 <p><a href="About.php">ABOUT</a></p>
                 <p><a href="Support.php">SUPPORT</a></p>
-                <p><a href="Profile.php">PROFILE</a></p>
+
+               <p><a href="Profile.php">PROFILE</a></p>
+                <?php 
+                // ONLY show the Logout link if the user is logged in
+                if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): 
+                ?>
+                <?php endif; ?>
+
             </div>
             </header>
             

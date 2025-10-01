@@ -25,9 +25,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['loggedin'] = true;
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['username'];
+
+                // --- NEW: START LOGIN TIMER ---
+                $_SESSION['login_start_time'] = time(); 
+                // -----------------------------
                 
                 // Redirect to user profile page
-                header("Location: Profile.php");
+                header("Location: Home.php");
                 exit();
             } else {
                 // Incorrect password

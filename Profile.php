@@ -5,7 +5,21 @@ require 'db_connect.php';
 // Check if the user is logged in, if not then redirect to login page
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("Location: Login.php");
-    exit;
+    // If you want to destroy the session cookie as well (optional but good practice)
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
+}
+
+// Destroy the session
+session_destroy();
+
+// Redirect the user to the login page
+header("Location: Login.php");
+exit;
 }
 
 // Get user ID from session
@@ -34,6 +48,8 @@ $stmt_games = $conn->prepare("
 $stmt_games->bindParam(':user_id', $user_id);
 $stmt_games->execute();
 $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
+// Calculate the count of owned games for the 'Total Games' stat
+$total_owned_games = count($owned_games);
 
 // (You would do a similar fetch for achievements)
 
@@ -157,11 +173,11 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
             opacity: 0.5;
         }
 
-        .head-right {
+        .nav-links {
             display: flex;
         }
 
-        .head-right a {
+        .nav-links a {
             text-decoration: none;
             padding-left: 25px;
             color: white;
@@ -170,7 +186,7 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
             transition: color 0.3s ease;
         }
 
-        .head-right a::after {
+        .nav-links a::after {
             content: '';
             position: absolute;
             width: 0;
@@ -563,6 +579,29 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
             box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
         }
 
+        .logout-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(to right, #4acfee, #0099ff);
+            color: black;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            margin-top: 30px;
+        }
+
+        .logout-button:hover {
+            background: linear-gradient(to right, #ff0000ff, #ff0000ff);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 1);
+            transform: translateY(-3px) scale(1.02);
+        }
+
         /* Footer styles from provided files */
         .footer {
             width: 100%;
@@ -633,7 +672,7 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                 width: 60px;
                 height: 60px;
             }
-            .head-right a {
+            .nav-links a {
                 padding-left: 15px;
                 font-size: 13px;
             }
@@ -678,14 +717,14 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
             .profile-section h3 {
                 font-size: 25px;
             }
-            .head-right {
+            .nav-links {
                 flex-direction: column;
                 align-items: flex-end;
             }
-            .head-right p {
+            .nav-links p {
                 margin: 5px 0;
             }
-            .head-right a {
+            .nav-links a {
                 padding-left: 0;
             }
             .profile-picture {
@@ -778,13 +817,21 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                 <img src="img/2.png" alt="logo">
             </div>
 
-            <div class="head-right">
-                <p><a href="Login.php">LOGIN</a></p>
+            <div class="nav-links">
                 <p><a href="Home.php">HOME</a></p>
                 <p><a href="Games.php">GAMES</a></p>
                 <p><a href="About.php">ABOUT</a></p>
                 <p><a href="Support.php">SUPPORT</a></p>
-                <p><a href="Profile.php">PROFILE</a></p>
+
+                <?php 
+                // Check if the 'loggedin' session variable is set and true
+                if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): 
+                ?>
+                    <p><a href="Profile.php">PROFILE</a></p>
+                <?php else: ?>
+
+                <?php endif; ?>
+
             </div>
         </header>
 
@@ -807,8 +854,8 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                         <div class="stats-grid">
                         <div class="stat-card">
                         <i class='bx bx-game'></i>
-                        <span class="label">Total Games Played</span>
-                        <span class="value"><?php echo htmlspecialchars($stats_data['games_played'] ?? 0); ?></span>
+                        <span class="label">Total Games Owned</span>
+                        <span class="value"><?php echo htmlspecialchars($total_owned_games ?? 0); ?></span>
                     </div>
                     <div class="stat-card">
                         <i class='bx bx-time-five'></i>
@@ -816,37 +863,6 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                         <span class="value"><?php echo htmlspecialchars($stats_data['hours_logged'] ?? 0); ?></span>
                     </div>
                             
-                        </div>
-                    </div>
-
-                    <div class="profile-card">
-                        <h2>Achievements</h2>
-                        <div class="achievements-grid">
-                            <div class="achievement-card">
-                                <i class='bx bx-target-lock'></i>
-                                <span class="title">First Blood (FPS)</span>
-                                <span class="status">Unlocked</span>
-                            </div>
-                            <div class="achievement-card">
-                                <i class='bx bx-map-alt'></i>
-                                <span class="title">Master Explorer (RPG)</span>
-                                <span class="status">Unlocked</span>
-                            </div>
-                            <div class="achievement-card">
-                                <i class='bx bx-car'></i>
-                                <span class="title">Speed Demon (Racing)</span>
-                                <span class="status">Unlocked</span>
-                            </div>
-                            <div class="achievement-card">
-                                <i class='bx bx-brain'></i>
-                                <span class="title">Strategist (Strategy)</span>
-                                <span class="status">Unlocked</span>
-                            </div>
-                            <div class="achievement-card">
-                                <i class='bx bx-group'></i>
-                                <span class="title">Community Champion</span>
-                                <span class="status">Unlocked</span>
-                            </div>
                         </div>
                     </div>
 
@@ -867,6 +883,7 @@ $owned_games = $stmt_games->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <a href="edit_profile.php" class="edit-button">Edit Profile</a>
+                <a href="logout.php" class="logout-button">Log Out</a>
             </div>
         </section>
 <?php include 'footer.php'; ?>

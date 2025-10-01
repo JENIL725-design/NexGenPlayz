@@ -103,7 +103,7 @@ try {
             margin-right: 20px;
         }
 
-        .head-right a {
+        .nav-links a {
             text-decoration: none;
             padding-left: 25px;
             color: white;
@@ -329,13 +329,13 @@ try {
                 margin-right: 0;
             }
 
-            .head-right {
+            .nav-links {
                 flex-wrap: wrap;
                 justify-content: center;
                 width: 100%;
             }
 
-            .head-right a {
+            .nav-links a {
                 text-align: center;
                 font-size: 12px;
                 padding: 5px 8px;
@@ -387,13 +387,22 @@ try {
             <div class="head-left">
                 <img src="img/2.png" alt="logo">
             </div>
-            <div class="head-right">
-                <p><a href="Login.php">LOGIN</a></p>
+            <div class="nav-links">
                 <p><a href="Home.php">HOME</a></p>
-                <p><a href="Games.php">GAMES</a></p>
                 <p><a href="About.php">ABOUT</a></p>
+                <p><a href="Games.php">GAMES</a></p>
                 <p><a href="Support.php">SUPPORT</a></p>
-                <p><a href="Profile.php">PROFILE</a></p>
+
+                <?php 
+                // Check if the 'loggedin' session variable is set and true
+                if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): 
+                ?>
+                    <p><a href="Profile.php">PROFILE</a></p>
+                    <p><a href="logout.php">LOGOUT</a></p>
+                <?php else: ?>
+                    <p><a href="Login.php">LOGIN / REGISTER</a></p>
+                <?php endif; ?>
+
             </div>
         </header>
 
@@ -416,7 +425,7 @@ try {
     <form action="process_purchase.php" method="POST">
         <input type="hidden" name="game_id" value="<?php echo htmlspecialchars($game_id); ?>">
         <label for="card_number">Card Number</label>
-        <input type="text" id="card_number" name="card_number" placeholder="0000 0000 0000 0000" required>
+        <input type="text" id="card_number" name="card_number" placeholder="0000 0000 0000 0000" maxlength="16" required>
         
         <label for="card_holder">Card Holder Name</label>
         <input type="text" id="card_holder" name="card_holder" placeholder="Jhon Doe" required>
@@ -424,11 +433,11 @@ try {
         <div class="input-group">
             <div>
                 <label for="expiry">Expiry Date</label>
-                <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required>
+                <input type="text" id="expiry" name="expiry" placeholder="MM/YY"  maxlength="4" required>
             </div>
             <div>
                 <label for="cvv">CVV</label>
-                <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="3" required>
             </div>
         </div>
         

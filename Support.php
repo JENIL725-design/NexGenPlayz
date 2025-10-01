@@ -1,3 +1,56 @@
+<?php
+session_start();
+// NOTE: Ensure 'db_connect.php' is available or place its content here if you want a true single file
+require 'db_connect.php'; 
+
+$thank_you_message = "";
+$error_message = "";
+
+// --- 1. HANDLE FORM SUBMISSION LOGIC ---
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    // 1. Sanitize and validate inputs
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $subject = trim($_POST['subject'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+
+    // Check for empty fields
+    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
+        $error_message = "Please fill out all fields.";
+    } else {
+        // 2. Insert data into the database
+        try {
+            $stmt = $conn->prepare("INSERT INTO support_messages (name, email, subject, message) VALUES (:name, :email, :subject, :message)");
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':subject', $subject);
+            $stmt->bindParam(':message', $message);
+            
+            if ($stmt->execute()) {
+                // Set a success flag in the session
+                $_SESSION['form_submission_success'] = true;
+                
+                // CRITICAL: Redirect to the same page using GET. This clears the POST data and the form fields.
+                header("Location: Support.php");
+                exit();
+            } else {
+                $error_message = "There was an error saving your message.";
+            }
+        } catch (PDOException $e) {
+            $error_message = "Database error: " . $e->getMessage();
+        }
+    }
+}
+// --- END FORM SUBMISSION LOGIC ---
+
+// --- 2. CHECK FOR SUCCESS FLAG AFTER REDIRECT ---
+if (isset($_SESSION['form_submission_success'])) {
+    $thank_you_message = "Thank you! Your message has been sent successfully. We Are Reach You Very Soon!.";
+    // Clear the flag so it doesn't show up on a subsequent manual refresh
+    unset($_SESSION['form_submission_success']); 
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,11 +164,11 @@
             opacity: 0.5;
         }
 
-        .head-right{
+        .nav-links{
             display: flex;
         }
 
-        .head-right a{
+        .nav-links a{
             text-decoration: none;
             padding-left: 25px;
             color: white;
@@ -124,7 +177,7 @@
             transition: color 0.3s ease;
         }
 
-        .head-right a::after {
+        .nav-links a::after {
             position: absolute;
             width: 0;
             height: 2px;
@@ -314,6 +367,55 @@
             box-shadow: 0 2px 10px rgba(0, 153, 255, 0.3);
         }
 
+        /* --- NEW SUCCESS MESSAGE CSS & ANIMATION --- */
+        .new-message-btn {
+            display: inline-block;
+            padding: 15px 40px; /* Matching the original submit button size */
+            margin-top: 30px;
+            background-color: #4acfee; /* Accent color */
+            color: black;
+            text-decoration: none;
+            border-radius: 25px; /* Matching the original submit button shape */
+            font-weight: 700;
+            font-size: 18px; /* Matching the original submit button font size */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 153, 255, 0.4);
+            animation: pulse 2s infinite ease-in-out; /* Animation */
+        }
+        .new-message-btn:hover {
+            background-color: #53f8c9;
+            box-shadow: 0 8px 25px rgba(83, 248, 201, 0.6); 
+            transform: translateY(-3px) scale(1.02); 
+            animation: none;
+        }
+        /* Keyframes for the animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(74, 207, 238, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(74, 207, 238, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(74, 207, 238, 0);
+            }
+        }
+        /* Style for the thank you message text */
+        .success-text {
+            color: #53f8c9; 
+            font-weight: bold; 
+            font-size: 1.2em; 
+            margin: 20px 0 30px 0; /* Adjusted margin to center with button */
+            display: block;
+        }
+        .error-message {
+            color: #ff4d4d;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: block;
+        }
+
         .footer{
             width: 100%;
             display: flex;
@@ -405,7 +507,7 @@
                 width: 60px;
                 height: 60px;
             }
-            .head-right a {
+            .nav-links a {
                 padding-left: 15px;
                 font-size: 13px;
             }
@@ -444,14 +546,14 @@
             .support-section h3 {
                 font-size: 25px;
             }
-            .head-right {
+            .nav-links {
                 flex-direction: column;
                 align-items: flex-end;
             }
-            .head-right p {
+            .nav-links p {
                 margin: 5px 0;
             }
-            .head-right a {
+            .nav-links a {
                 padding-left: 0;
             }
         }
@@ -464,13 +566,19 @@
                 <img src="img/2.png" alt="Logo">
             </div>
 
-            <div class="head-right">
-                <p><a href="Login.php">LOGIN</a></p>
+            <div class="nav-links">
                 <p><a href="Home.php">HOME</a></p>
                 <p><a href="Games.php">GAMES</a></p>
                 <p><a href="About.php">ABOUT</a></p>
                 <p><a href="Support.php">SUPPORT</a></p>
-                <p><a href="Profile.php">PROFILE</a></p>
+
+               <p><a href="Profile.php">PROFILE</a></p>
+                <?php 
+                // ONLY show the Logout link if the user is logged in
+                if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): 
+                ?>
+                <?php endif; ?>
+
             </div>
             </header>
             
@@ -478,29 +586,46 @@
             <h1 class="autoDisplay">Need Help? We've Got You!</h1>
             <h3 class="autoDisplay">Our Team is Ready to Assist You, 24/7.</h3>
 
-            <div class="contact-form-container autoDisplay">
-                <p style="color: lightgray; margin-bottom: 30px; text-align: center;">Fill out the form below and we'll get back to you as soon as possible. Your ultimate gaming experience is our priority!</p>
-                <form action="handle_form.php" method="POST">
-                    <div class="form-group">
-                        <input type="text" id="name" name="name" placeholder=" " required>
-                        <label for="name">Your Name</label>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" placeholder=" " required>
-                        <label for="email">Your Email</label>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="subject" name="subject" placeholder=" " required>
-                        <label for="subject">Subject</label>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="message" name="message" placeholder=" " required></textarea>
-                        <label for="message">Your Message</label>
-                    </div>
+             <div class="contact-form-container autoDisplay">
+                <?php if (!empty($thank_you_message)): ?>
+                    <span class="success-text"><?php echo htmlspecialchars($thank_you_message); ?></span>
                     <center>
-                    <button type="submit" class="submit-button">Send Message</button>
+                    <a href="Support.php" class="new-message-btn">
+                        Send Another Message
+                    </a>
                     </center>
-                </form>
+
+
+                <?php else: // Display the form (default state or on error) ?>
+                    
+                    <?php if (!empty($error_message)): ?>
+                        <span class="error-message"><?php echo htmlspecialchars($error_message); ?></span>
+                    <?php endif; ?>
+                    
+                    <p style="color: lightgray; margin-bottom: 30px; text-align: center;">Fill out the form below and we'll get back to you as soon as possible. Your ultimate gaming experience is our priority!</p>
+                    
+                    <form action="Support.php" method="POST">
+                        <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder=" " required>
+                            <label for="name">Your Name</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder=" " required>
+                            <label for="email">Your Email</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="subject" name="subject" placeholder=" " required>
+                            <label for="subject">Subject</label>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" name="message" placeholder=" " required></textarea>
+                            <label for="message">Your Message</label>
+                        </div>
+                        <center>
+                        <button type="submit" class="submit-button">Send Message</button>
+                        </center>
+                    </form>
+                <?php endif; ?>
             </div>
         </section>
 

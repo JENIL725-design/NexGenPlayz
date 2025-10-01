@@ -74,11 +74,11 @@
             opacity: 0.5;
         }
 
-        .head-right{
+        .nav-links{
             display: flex;
         }
 
-        .head-right a{
+        .nav-links a{
             text-decoration: none;
             padding-left: 25px;
             color: white;
@@ -265,7 +265,7 @@
         margin-right: 0;
     }
 
-    .head-right {
+    .nav-links {
         font-size: 12px;
         padding: 0 5px;
         /* Ensure head-right remains visible and adjusts */
@@ -274,7 +274,7 @@
         justify-content: center; /* Center links if they wrap */
         width: 100%; /* Take full width to allow wrapping */
     }
-    .head-right a{
+    .nav-links a{
         text-align: center; /* Center text within links */
         font-size: 12px;
         padding: 5px 8px; /* Adjust padding for smaller links */
@@ -382,13 +382,20 @@
                 <img src="img/2.png" alt="logo">
             </div>
 
-            <div class="head-right">
-                <p><a href="Login.php">LOGIN</a></p>
+            <div class="nav-links">
                 <p><a href="Home.php">HOME</a></p>
                 <p><a href="Games.php">GAMES</a></p>
                 <p><a href="About.php">ABOUT</a></p>
                 <p><a href="Support.php">SUPPORT</a></p>
-                <p><a href="Profile.php">PROFILE</a></p>
+
+               <p><a href="Profile.php">PROFILE</a></p>
+
+                <?php 
+                // ONLY show the Logout link if the user is logged in
+                if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): 
+                ?>
+                <?php endif; ?>
+
             </div>
         </header>
         <section class="about-section">
