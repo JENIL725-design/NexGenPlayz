@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 25, 2025 at 05:05 PM
+-- Generation Time: Oct 12, 2025 at 05:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -51,7 +51,8 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`admin_id`, `username`, `email`, `password_hash`) VALUES
-(1, 'JENIL', 'JENIL@gmail.com', '102030');
+(1, 'JENIL', 'JENIL@gmail.com', '102030'),
+(2, 'SOME', 'SOME@gmail.com', '10');
 
 -- --------------------------------------------------------
 
@@ -80,9 +81,9 @@ INSERT INTO `games` (`game_id`, `title`, `cover_image`, `video_preview`, `price`
 (14, 'Apex Legends ', 'img/apex.png', 'video/APEXLEGEND 480.mp4', 49.99),
 (15, 'Battlefield 2042', 'img/2042.png', 'video/Battlefiled 2042.mp4', 52.99),
 (16, 'GTA 6', 'img/gta 6.png', 'video/GTA VI 480.mp4', 99.99),
-(17, 'ILL', 'img/ill.png', 'video/ILL 480.mp4', 37.99),
+(17, 'ILL', 'img/ill.png', 'video/ILL 480.mp4', 47.99),
 (18, 'JUST CAUSE 4', 'img/JustCause4.png', 'video/JUST CAUSE 4 480.mp4', 38.99),
-(19, 'SEKIRO ', 'img/Sekiro.png', 'video/Sekiro 480.mp4', 49.99);
+(21, 'SEKIRO ', 'img/Sekiro.png', 'video/Sekiro 480.mp4', 59.99);
 
 -- --------------------------------------------------------
 
@@ -107,7 +108,11 @@ CREATE TABLE `payments` (
 
 INSERT INTO `payments` (`payment_id`, `user_id`, `game_id`, `card_number`, `card_holder`, `expiry`, `cvv`, `payment_date`) VALUES
 (6, 6, 9, '5798321475863259', 'USER GAMER', '2345', '7846', '2025-09-25 14:20:29'),
-(7, 6, 16, '3574869158723548', 'PRO GAMER', '8753', '247', '2025-09-25 15:01:28');
+(7, 6, 16, '3574869158723548', 'PRO GAMER', '8753', '247', '2025-09-25 15:01:28'),
+(8, 6, 10, '8657485396857134', 'Doe Jhon', '5246', '353', '2025-10-01 13:29:34'),
+(10, 6, 14, '2647564174123762', 'NEW ERA', '7545', '786', '2025-10-01 16:07:01'),
+(11, 13, 16, '5483483218748654', 'YOUR GAMING', '7824', '786', '2025-10-12 10:45:30'),
+(12, 6, 13, '9874164684231378', 'Who is this ?', '7549', '485', '2025-10-12 14:27:38');
 
 -- --------------------------------------------------------
 
@@ -123,13 +128,6 @@ CREATE TABLE `support_messages` (
   `message` text NOT NULL,
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=dec8 COLLATE=dec8_bin;
-
---
--- Dumping data for table `support_messages`
---
-
-INSERT INTO `support_messages` (`message_id`, `name`, `email`, `subject`, `message`, `submitted_at`) VALUES
-(1, 'some', 'something@gmail.com', 'app', 'we need your app', '2025-09-15 15:58:14');
 
 -- --------------------------------------------------------
 
@@ -152,8 +150,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `email`, `password_hash`, `profile_picture`, `tagline`, `created_at`) VALUES
-(6, 'GAMING PRO', 'jenil@gmail.com', 'jenil', 'uploads/profile_photos/profile_68d559657edcb.png', '', '2025-09-25 15:01:57'),
-(7, 'something', 'something@gmail.com', '123', '', '', '2025-09-15 14:59:44');
+(6, 'GAMING PRO', 'jenil@gmail.com', 'JENIL', 'uploads/profile_photos/profile_68d559657edcb.png', '', '2025-10-12 10:36:28'),
+(13, 'something', 'something@gmail.com', '123', 'uploads/profile_photos/profile_68eb86658a6f6.png', '', '2025-10-12 10:43:49');
 
 -- --------------------------------------------------------
 
@@ -186,7 +184,11 @@ CREATE TABLE `user_owned_games` (
 
 INSERT INTO `user_owned_games` (`ownership_id`, `user_id`, `game_id`) VALUES
 (26, 6, '9'),
-(27, 6, '16');
+(27, 6, '16'),
+(28, 6, '10'),
+(30, 6, '14'),
+(31, 13, '16'),
+(32, 6, '13');
 
 -- --------------------------------------------------------
 
@@ -203,6 +205,29 @@ CREATE TABLE `user_stats` (
   `losses` int(11) NOT NULL,
   `current_rank` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=dec8 COLLATE=dec8_bin;
+
+--
+-- Dumping data for table `user_stats`
+--
+
+INSERT INTO `user_stats` (`stat_id`, `user_id`, `games_played`, `hours_logged`, `wins`, `losses`, `current_rank`) VALUES
+(1, '6', 0, 1, 0, 0, ''),
+(2, '6', 0, 0, 0, 0, ''),
+(3, '6', 0, 0, 0, 0, ''),
+(4, '6', 0, 0, 0, 0, ''),
+(5, '6', 0, 0, 0, 0, ''),
+(6, '6', 0, 0, 0, 0, ''),
+(7, '6', 0, 0, 0, 0, ''),
+(8, '6', 0, 0, 0, 0, ''),
+(9, '6', 0, 0, 0, 0, ''),
+(10, '6', 0, 0, 0, 0, ''),
+(11, '6', 0, 0, 0, 0, ''),
+(12, '6', 0, 0, 0, 0, ''),
+(13, '6', 0, 0, 0, 0, ''),
+(14, '13', 0, 0, 0, 0, ''),
+(15, '6', 0, 0, 0, 0, ''),
+(16, '6', 0, 0, 0, 0, ''),
+(17, '6', 0, 0, 0, 0, '');
 
 --
 -- Indexes for dumped tables
@@ -245,7 +270,8 @@ ALTER TABLE `support_messages`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `user_achievements`
@@ -279,31 +305,31 @@ ALTER TABLE `achievements`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `games`
 --
 ALTER TABLE `games`
-  MODIFY `game_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `game_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `support_messages`
 --
 ALTER TABLE `support_messages`
-  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `user_achievements`
@@ -315,13 +341,13 @@ ALTER TABLE `user_achievements`
 -- AUTO_INCREMENT for table `user_owned_games`
 --
 ALTER TABLE `user_owned_games`
-  MODIFY `ownership_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `ownership_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `user_stats`
 --
 ALTER TABLE `user_stats`
-  MODIFY `stat_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `stat_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Constraints for dumped tables
