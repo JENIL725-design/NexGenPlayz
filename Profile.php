@@ -850,7 +850,7 @@ $total_owned_games = count($owned_games);
 
                 <div class="profile-sections">
                     <div class="profile-card">
-                        <h2>Game Statistics</h2>
+                        <h2>User Info</h2>
                         <div class="stats-grid">
                         <div class="stat-card">
                         <i class='bx bx-game'></i>

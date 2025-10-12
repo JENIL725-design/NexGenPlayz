@@ -388,19 +388,13 @@ try {
                 <img src="img/2.png" alt="logo">
             </div>
             <div class="nav-links">
-                <p><a href="Home.php">HOME</a></p>
-                <p><a href="About.php">ABOUT</a></p>
-                <p><a href="Games.php">GAMES</a></p>
-                <p><a href="Support.php">SUPPORT</a></p>
+
 
                 <?php 
                 // Check if the 'loggedin' session variable is set and true
                 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): 
                 ?>
-                    <p><a href="Profile.php">PROFILE</a></p>
-                    <p><a href="logout.php">LOGOUT</a></p>
                 <?php else: ?>
-                    <p><a href="Login.php">LOGIN / REGISTER</a></p>
                 <?php endif; ?>
 
             </div>
