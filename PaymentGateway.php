@@ -248,11 +248,17 @@ try {
             font-size: 18px;
             cursor: pointer;
             transition: 0.3s;
+            animation: animate-gradient 2.5s linear infinite;
+        }
+
+        @keyframes animate-gradient{
+            to{
+                background-position: 200%;
+            }
         }
 
         .submit-btn:hover {
-            background-position: right center;
-            box-shadow: 0 0 25px rgba(0, 153, 255, 0.7);
+            box-shadow: 0 0 25px rgba(0, 255, 242, 1);
         }
 
         .message-container p {

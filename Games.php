@@ -224,9 +224,13 @@ header {
     transition: 0.3s;
 }
 
+.card button a{
+    color: green;
+}
+
 .card button:hover {
     box-shadow: 0 0 25px lightgray;
-    opacity: 0.7;
+    opacity: 0.75;
 }
 
 .card:hover {

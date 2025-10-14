@@ -574,7 +574,6 @@
                     </div>
                     <button type="submit" class="submit-button">Login</button>
                     <div class="form-links">
-                        <a href="#">Forgot Password?</a>
                         <a href="#register">Don't have an account? Register</a>
                         <a href="Admin_Login.php">Admin Login</a>
                     </div>

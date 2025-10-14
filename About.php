@@ -400,7 +400,7 @@
         </header>
         <section class="about-section">
             <h1 class="autoDisplay">NexGenPlayz The Best Choice for Gaming!</h1>
-            <h3 class="autoDisplay">Inhance Your New Gaming Experience With Us! </h3>
+            <h3 class="autoDisplay">Enhance Your New Gaming Experience With Us! </h3>
 
             <div class="about-content">
                 <p class="autoDisplay">Welcome to NexGenPlayz, truly the best gaming site you'll ever find. We don't just say we're good; we're the top choice for gamers who want awesome experiences. We always try new things to make gaming better for everyone, everywhere. Our goal is simple: to make sure you have the most fun and easy gaming time possible, every single time you visit.</p>
